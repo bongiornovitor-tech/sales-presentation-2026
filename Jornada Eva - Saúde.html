@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuveto - A Jornada de Eva (Conecta+)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .slide-enter { animation: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Device Mockups */
+        .phone-frame {
+            border: 12px solid #1e293b;
+            border-radius: 40px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+            position: relative;
+            z-index: 10;
+        }
+        .phone-notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 35%;
+            height: 24px;
+            background: #1e293b;
+            border-bottom-left-radius: 14px;
+            border-bottom-right-radius: 14px;
+            z-index: 20;
+        }
+
+        /* Chat Bubbles */
+        .chat-bubble-bot {
+            background-color: #f3f4f6;
+            border-radius: 16px 16px 16px 4px;
+            padding: 12px;
+            font-size: 13px;
+            color: #1f2937;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.05);
+            max-width: 85%;
+        }
+        .chat-bubble-user {
+            background-color: #dcf8c6;
+            border-radius: 16px 16px 4px 16px;
+            padding: 12px;
+            font-size: 13px;
+            color: #0c4a6e;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.05);
+            align-self: flex-end;
+            max-width: 85%;
+        }
+
+        /* Animations */
+        .fade-enter-active { transition: opacity 0.8s ease; }
+        .fade-enter-from { opacity: 0; }
+        .fade-enter-to { opacity: 1; }
+        
+        /* Progress Bar Pulse */
+        .progress-pulse {
+            box-shadow: 0 0 10px rgba(37, 99, 235, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 h-screen flex flex-col overflow-hidden">
+ <!-- Botão Voltar para Soluções -->
+    <div class="fixed top-4 left-4 z-50">
+        <a href="index.html"
+           class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/80 text-white text-xs md:text-sm border border-white/20 shadow-lg hover:bg-slate-900 hover:border-[#00c2ff] transition">
+            ← Voltar para Soluções
+        </a>
+    </div>
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 px-8 py-4 flex flex-col md:flex-row justify-between items-center shadow-md z-30 h-24 md:h-20 gap-2">
+        <div class="flex items-center gap-3 min-w-fit">
+            <div class="bg-blue-600 text-white p-2 rounded-lg shadow-sm">
+                <i data-lucide="layers" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold text-slate-900 tracking-tight leading-none">Nuveto <span class="text-blue-600">Conecta+</span></h1>
+            </div>
+        </div>
+        
+        <!-- Enhanced Progress Bar -->
+        <div class="flex flex-col w-full max-w-2xl px-4">
+            <div class="flex justify-between items-end mb-2">
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Etapa Atual</span>
+                <span id="progress-text" class="text-lg font-extrabold text-blue-700 tracking-tight uppercase transition-all duration-300">1. Necessidade</span>
+            </div>
+            <div class="h-3 w-full bg-slate-200 rounded-full overflow-hidden shadow-inner">
+                <div id="progress-bar" class="h-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-700 ease-out w-[11%] progress-pulse relative">
+                    <div class="absolute right-0 top-0 bottom-0 w-1 bg-white/30"></div>
+                </div>
+            </div>
+            <div class="flex justify-between mt-1 px-1">
+                <span class="text-[9px] text-slate-400 font-bold">1. Necessidade</span>
+                <span class="text-[9px] text-slate-400 font-bold">9. Fidelização</span>
+            </div>
+        </div>
+
+        <div class="min-w-fit hidden md:block">
+            <div class="flex items-center gap-1 text-slate-400 text-xs">
+                <i data-lucide="user" class="w-3 h-3"></i>
+                <span>Jornada do Paciente</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Stage -->
+    <main class="flex-1 relative flex items-center justify-center p-4 bg-slate-50 overflow-hidden">
+        
+        <!-- Slide Content Wrapper -->
+        <div id="slide-stage" class="w-full max-w-7xl h-full flex flex-col justify-center relative z-10">
+            <!-- Content injected here -->
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="absolute bottom-6 right-6 flex gap-3 z-30">
+            <button onclick="prevSlide()" id="btn-prev" class="p-4 bg-white border border-slate-200 rounded-full shadow-lg text-slate-500 hover:text-blue-600 hover:border-blue-300 hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                <i data-lucide="arrow-left" class="w-6 h-6"></i>
+            </button>
+            <button onclick="nextSlide()" id="btn-next" class="group flex items-center gap-3 px-8 py-4 bg-blue-600 text-white rounded-full shadow-xl hover:bg-blue-700 hover:shadow-blue-600/30 transition-all transform hover:scale-105 disabled:opacity-50">
+                <span class="font-bold tracking-wide text-lg">Próximo</span>
+                <i data-lucide="arrow-right" class="w-6 h-6 group-hover:translate-x-1 transition-transform"></i>
+            </button>
+        </div>
+
+    </main>
+
+    <script>
+        // Data Structure
+        const slides = [
+            {
+                stepName: "1. Necessidade",
+                stepIndex: 1,
+                title: "O Mundo Comum",
+                subtitle: "Eva e a Necessidade Latente",
+                layout: "persona",
+                content: {
+                    text: "Eva é ativa e conectada. Ela valoriza seu tempo acima de tudo. Ao acordar com o olho irritado, ela tenta ignorar, mas o desconforto vira dor. Ela precisa de ajuda rápida, sem burocracia.",
+                    pain: "Dor crescente e impaciência com processos lentos.",
+                    attributes: [
+                        { icon: "smartphone", label: "Digital First", desc: "Resolve tudo no mobile" },
+                        { icon: "zap", label: "Imediata", desc: "Odeia esperar em linha" }
+                    ]
+                },
+                visual: {
+                    // Updated Image for Eva: White woman, 34 years old, long hair, glasses
+                    image: "https://images.unsplash.com/photo-1573497019236-17f8177b81e8?auto=format&fit=crop&q=80&w=600",
+                    name: "Eva, 34 anos"
+                }
+            },
+            {
+                stepName: "2. Busca & Confiança",
+                stepIndex: 2,
+                title: "A Busca & Ação",
+                subtitle: "Do Google Ads direto para o WhatsApp",
+                layout: "search-transition",
+                content: {
+                    text: "Eva busca no Google. Ela vê o anúncio da Oftalmoo (com 5 estrelas) e clica. O site carrega instantaneamente com um botão de WhatsApp em destaque no topo.",
+                    action: "Transição suave entre intenção de busca e canal de conversão.",
+                    highlight: "Captura de lead qualificado via Ads + Site Otimizado."
+                },
+                visual: {
+                    query: "Oftalmologista urgência",
+                    adTitle: "Clínica Oftalmoo - Atendimento Humanizado",
+                    siteTitle: "Agende Aqui"
+                }
+            },
+            {
+                stepName: "3. Agendamento",
+                stepIndex: 3,
+                title: "O Mentor (IA)",
+                subtitle: "Recepção Humanizada e Eficiente",
+                layout: "mobile-chat",
+                content: {
+                    text: "No WhatsApp, o Assistente IA da Conecta+ não age como um robô frio. Ele saúda Eva pelo nome (via API do WhatsApp) e conduz a triagem inicial com naturalidade.",
+                    highlight: "A IA retém o cliente, filtra a demanda (Particular vs Convênio) e prepara o terreno."
+                },
+                visual: {
+                    chat: [
+                        { role: "bot", text: "Olá Eva, seja bem-vinda à clínica Oftalmoo! 👋💙" },
+                        { role: "bot", text: "Para continuarmos com seu agendamento, me diga se é particular ou pelo convênio?" },
+                        { role: "user", text: "Tenho convênio, é o SaúdeLife." },
+                        { role: "bot", text: "Perfeito! O SaúdeLife é nosso parceiro." }
+                    ]
+                }
+            },
+            {
+                stepName: "4. Agendamento", 
+                stepIndex: 4,
+                title: "A Escolha Visual",
+                subtitle: "Facilidade na palma da mão",
+                layout: "mobile-carousel",
+                content: {
+                    text: "Para agendar, o bot envia um carrossel interativo. Eva visualiza opções como o Dr. Jonas Eye e o Dr. Aram Sehid. O card de confirmação chega instantaneamente.",
+                    highlight: "O visual rico aumenta a conversão e evita erros de agendamento."
+                },
+                visual: {
+                    items: [
+                        { 
+                            title: "Dr. Jonas Eye", 
+                            time: "10:00 - Amanhã", 
+                            loc: "Rua Amaro Guerra, 114",
+                            img: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=150" 
+                        },
+                        { 
+                            title: "Dr. Aram Sehid", 
+                            time: "12/01/2025 - 14:00", 
+                            loc: "Rua da Paz, 100",
+                            img: "https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&q=80&w=150"
+                        },
+                        { 
+                            title: "Dra. Ana", 
+                            time: "14:30 - Amanhã", 
+                            loc: "Unidade Sul",
+                            img: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=150"
+                        }
+                    ]
+                }
+            },
+            {
+                stepName: "5. Pré-Consulta",
+                stepIndex: 5,
+                title: "O Obstáculo",
+                subtitle: "O Imprevisto gera a necessidade de Voz",
+                layout: "whatsapp-call-trigger",
+                content: {
+                    text: "No dia seguinte, a dor escala. Eva não consegue digitar bem e não pode dirigir. Ela precisa de ajuda humana AGORA. No WhatsApp, ela aciona o botão para falar por voz.",
+                    action: "Botão 'Fale Agora' aciona a chamada via dados (VoIP/WebCall) ou redireciona.",
+                    highlight: "O cliente escolhe o canal mais conveniente no momento de crise."
+                },
+                visual: {
+                    lastMsg: "Eva, seu agendamento é hoje às 10h. Confirma?",
+                    buttonText: "Preciso de ajuda urgente",
+                    callAction: "📞 Fale Agora"
+                }
+            },
+            {
+                stepName: "6. Reagendamento",
+                stepIndex: 6,
+                title: "A Conexão Contextual",
+                subtitle: "Dolores já sabe de tudo",
+                layout: "agent-context",
+                content: {
+                    text: "A chamada entra para Dolores. O Conecta+ exibe na tela: Eva, dor no olho, agendada com Dr. Jonas na Unidade Centro às 10:00. Dolores não pergunta 'quem é você?'. Ela acolhe.",
+                    script: "— 'Olá Eva, vi seu agendamento com o Dr. Jonas hoje. Sua dor aumentou?'",
+                    highlight: "Contexto preservado = Atendimento empático e ágil."
+                },
+                visual: {
+                    crm: {
+                        patient: "Eva Silva",
+                        status: "⚠️ Dor Aguda",
+                        appointment: {
+                            doc: "Dr. Jonas Eye",
+                            unit: "Unidade Centro",
+                            time: "10:00 (Hoje)"
+                        }
+                    }
+                }
+            },
+            {
+                stepName: "7. Triagem",
+                stepIndex: 7,
+                title: "Triagem Remota",
+                subtitle: "Escalando para o Especialista",
+                layout: "video-triage",
+                content: {
+                    text: "Dolores nota a gravidade e adiciona o Dr. Hassan na chamada. Na tela, vemos o médico de jaleco branco olhando fixamente para a câmera, focado no diagnóstico.",
+                    highlight: "Tecnologia permitindo medicina de ponta remotamente."
+                },
+                visual: {
+                    mainParticipant: "Dr. Hassan",
+                    secParticipant: "Dolores"
+                }
+            },
+            {
+                stepName: "8. Encaminhamento",
+                stepIndex: 8,
+                title: "A Solução",
+                subtitle: "Guia Digital e Rota",
+                layout: "mobile-doc",
+                content: {
+                    text: "Dr. Hassan diagnostica a urgência e emite a guia digital. Eva recebe no WhatsApp junto com o mapa para o Pronto Socorro. Tudo resolvido sem sair do sofá desnecessariamente.",
+                    highlight: "Eficiência operacional e experiência do cliente nota 10."
+                },
+                visual: {
+                    doc: "Guia_PS_Urgencia.pdf",
+                    map: "Rota PS Oftalmoo"
+                }
+            },
+            {
+                stepName: "9. Fidelização",
+                stepIndex: 9,
+                title: "O Retorno (Elixir)",
+                subtitle: "Lealdade Conquistada",
+                layout: "loyalty",
+                content: {
+                    text: "Eva chega ao PS e é atendida rapidamente. Ela se sente cuidada, não apenas 'processada'. A Oftalmoo ganhou uma promotora da marca.",
+                    impact: "Conecta+: Tecnologia que humaniza e fideliza.",
+                    kpis: ["NPS Elevado", "Eficiência Operacional", "Retenção"]
+                },
+                visual: {
+                    icon: "heart"
+                }
+            }
+        ];
+
+        let currentIndex = 0;
+        let animationInterval; // Google loop
+        let carouselInterval; // Carousel loop
+
+        const stage = document.getElementById('slide-stage');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+
+        function updateProgress() {
+            const currentStep = slides[currentIndex].stepIndex;
+            const totalSteps = 9;
+            const percent = (currentStep / totalSteps) * 100;
+            
+            progressBar.style.width = `${percent}%`;
+            progressText.innerText = slides[currentIndex].stepName;
+            
+            btnPrev.disabled = currentIndex === 0;
+            if(currentIndex === slides.length - 1) {
+                btnNext.innerHTML = '<span class="font-bold tracking-wide text-lg">Reiniciar</span><i data-lucide="rotate-ccw" class="w-6 h-6"></i>';
+            } else {
+                btnNext.innerHTML = '<span class="font-bold tracking-wide text-lg">Próximo</span><i data-lucide="arrow-right" class="w-6 h-6 group-hover:translate-x-1 transition-transform"></i>';
+            }
+        }
+
+        function renderSlide(index) {
+            // Clean up previous intervals
+            if (animationInterval) clearInterval(animationInterval);
+            if (carouselInterval) clearInterval(carouselInterval);
+
+            const slide = slides[index];
+            let visualHTML = '';
+
+            // --- LAYOUT LOGIC ---
+
+            if(slide.layout === 'persona') {
+                visualHTML = `
+                    <div class="relative h-[550px] w-full rounded-3xl overflow-hidden shadow-2xl group border-4 border-white">
+                        <img src="${slide.visual.image}" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt="Eva">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent"></div>
+                        <div class="absolute bottom-0 left-0 p-8 text-white w-full">
+                            <h3 class="text-4xl font-extrabold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-white">${slide.visual.name}</h3>
+                            <div class="grid grid-cols-2 gap-3">
+                                ${slide.content.attributes.map(attr => `
+                                    <div class="bg-white/10 backdrop-blur-md p-3 rounded-xl border border-white/10 hover:bg-white/20 transition-colors">
+                                        <i data-lucide="${attr.icon}" class="w-6 h-6 mb-2 text-blue-400"></i>
+                                        <div class="text-sm font-bold">${attr.label}</div>
+                                        <div class="text-xs text-slate-300">${attr.desc}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } 
+            else if (slide.layout === 'search-transition') {
+                // Modified for Infinite Loop Animation
+                visualHTML = `
+                    <div class="relative h-[580px] w-[300px] mx-auto phone-frame">
+                        <div class="phone-notch"></div>
+                        
+                        <!-- State 1: Google Search -->
+                        <div id="visual-state-1" class="absolute inset-0 bg-white flex flex-col transition-opacity duration-1000 z-20">
+                            <!-- Google Header Mock -->
+                            <div class="bg-white border-b p-3 pt-8 flex items-center justify-between shadow-sm sticky top-0">
+                                <div class="text-xl font-bold font-serif text-slate-700"><span class="text-blue-500">G</span><span class="text-red-500">o</span><span class="text-yellow-500">o</span><span class="text-blue-500">g</span><span class="text-green-500">l</span><span class="text-red-500">e</span></div>
+                                <div class="w-6 h-6 bg-purple-500 rounded-full text-white flex items-center justify-center text-xs">E</div>
+                            </div>
+                            <!-- Search Bar -->
+                            <div class="px-4 py-2 border-b">
+                                <div class="bg-white rounded-full shadow-md border px-4 py-2 text-sm text-slate-700 flex justify-between items-center">
+                                    <span>${slide.visual.query}</span>
+                                    <i data-lucide="search" class="w-4 h-4 text-blue-500"></i>
+                                </div>
+                            </div>
+                            <!-- Results -->
+                            <div class="p-4 bg-slate-50 flex-1">
+                                <div class="bg-white p-3 rounded-lg shadow-sm border border-slate-200 mb-2">
+                                    <div class="flex items-center gap-1 mb-1">
+                                        <span class="text-[10px] font-bold text-slate-900">Patrocinado</span>
+                                        <i data-lucide="info" class="w-3 h-3 text-slate-400"></i>
+                                    </div>
+                                    <div class="text-blue-800 text-sm font-medium hover:underline cursor-pointer">Clínica Oftalmoo - Urgência</div>
+                                    <div class="text-xs text-green-700 mb-1">oftalmoo.com.br/agendamento</div>
+                                    <div class="text-xs text-slate-600 mb-2">Atendimento especializado e tecnologia de ponta.</div>
+                                    <div class="flex items-center gap-1 text-[10px] text-yellow-500">
+                                        <i data-lucide="star" class="w-3 h-3 fill-current"></i>
+                                        <i data-lucide="star" class="w-3 h-3 fill-current"></i>
+                                        <i data-lucide="star" class="w-3 h-3 fill-current"></i>
+                                        <i data-lucide="star" class="w-3 h-3 fill-current"></i>
+                                        <i data-lucide="star" class="w-3 h-3 fill-current"></i>
+                                        <span class="text-slate-400 ml-1">(458)</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Finger/Cursor Animation -->
+                            <div class="absolute top-[220px] left-[150px] w-8 h-8 bg-slate-400/50 rounded-full animate-ping"></div>
+                        </div>
+
+                        <!-- State 2: Website -->
+                        <div id="visual-state-2" class="absolute inset-0 bg-white flex flex-col opacity-0 transition-opacity duration-1000 z-10">
+                            <!-- Site Header -->
+                            <div class="bg-blue-900 text-white p-3 pt-8 flex justify-between items-center">
+                                <div class="font-bold text-sm tracking-widest">OFTALMOO</div>
+                                <i data-lucide="menu" class="w-5 h-5"></i>
+                            </div>
+                            <!-- Hero Section -->
+                            <div class="bg-blue-50 p-6 flex flex-col items-center justify-center text-center flex-1">
+                                <h2 class="text-blue-900 font-bold text-lg mb-2 leading-tight">Sua visão é nossa prioridade</h2>
+                                <p class="text-xs text-blue-700 mb-6">Tecnologia avançada e corpo clínico renomado.</p>
+                                
+                                <!-- The CTA -->
+                                <div class="relative w-full max-w-[200px]">
+                                    <button class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-full shadow-lg flex items-center justify-center gap-2 transform scale-105 transition-transform">
+                                        <span>${slide.visual.siteTitle}</span>
+                                        <div class="bg-white text-green-500 rounded-full p-1 w-6 h-6 flex items-center justify-center">
+                                            <i data-lucide="message-circle" class="w-4 h-4 fill-current"></i>
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="h-1/3 bg-slate-200"></div>
+                        </div>
+                    </div>
+                `;
+            }
+            else if (slide.layout === 'mobile-chat') {
+                visualHTML = `
+                    <div class="relative h-[580px] w-[300px] mx-auto phone-frame">
+                        <div class="phone-notch"></div>
+                        <div class="bg-[#075e54] p-3 pt-8 text-white flex items-center gap-3 shadow-md z-10 relative">
+                            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                            <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center border-2 border-green-400">
+                                <span class="text-xs font-bold text-[#075e54]">IO</span>
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-sm font-bold">Oftalmoo IA</div>
+                                <div class="text-[10px] text-green-100">Conta Comercial</div>
+                            </div>
+                        </div>
+                        <div class="bg-[#e5ddd5] flex-1 p-4 overflow-y-auto flex flex-col gap-3" style="background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); opacity: 0.9;">
+                            <div class="text-[10px] text-center bg-[#dcf8c6] text-slate-500 self-center px-2 rounded mb-2 shadow-sm">Hoje</div>
+                            ${slide.visual.chat.map(msg => `
+                                <div class="${msg.role === 'bot' ? 'self-start chat-bubble-bot' : 'self-end chat-bubble-user'}">
+                                    ${msg.text}
+                                    <div class="text-[9px] text-gray-400 text-right mt-1 flex justify-end gap-1">
+                                        10:32 ${msg.role === 'user' ? '<i data-lucide="check-check" class="w-3 h-3 text-blue-400"></i>' : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            else if (slide.layout === 'whatsapp-call-trigger') {
+                visualHTML = `
+                    <div class="relative h-[580px] w-[300px] mx-auto phone-frame">
+                        <div class="phone-notch"></div>
+                        <div class="bg-[#075e54] p-3 pt-8 text-white flex items-center gap-3 shadow-md z-10 relative">
+                            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                            <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center"><span class="text-xs font-bold text-[#075e54]">IO</span></div>
+                            <div class="flex-1 text-sm font-bold">Oftalmoo IA</div>
+                        </div>
+                        <div class="bg-[#e5ddd5] flex-1 p-4 flex flex-col justify-end pb-8" style="background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');">
+                            
+                            <div class="self-start chat-bubble-bot mb-4">
+                                ${slide.visual.lastMsg}
+                            </div>
+                            
+                            <div class="self-end chat-bubble-user mb-4">
+                                ${slide.visual.buttonText} 😰
+                            </div>
+
+                            <div class="bg-white p-1 rounded-lg shadow-md self-center w-full max-w-[240px] animate-pulse">
+                                <div class="bg-slate-50 border-b border-slate-100 p-2 text-center text-xs text-slate-500">
+                                    Atendimento por Voz
+                                </div>
+                                <button class="w-full bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold py-3 rounded-b-lg flex items-center justify-center gap-2 transition-colors">
+                                    <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white shadow-lg">
+                                        <i data-lucide="phone" class="w-4 h-4 fill-current"></i>
+                                    </div>
+                                    <span class="text-sm">${slide.visual.callAction}</span>
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                `;
+            }
+            else if (slide.layout === 'agent-context') {
+                visualHTML = `
+                    <div class="w-full h-full flex items-center justify-center">
+                        <div class="bg-white border-2 border-slate-200 rounded-xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col h-[450px]">
+                            <!-- Header Agent -->
+                            <div class="bg-slate-800 text-white p-3 text-xs flex justify-between items-center">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                    <span class="font-bold">Dolores (Conecta+ Agent)</span>
+                                </div>
+                                <span class="text-slate-400">Chamada em andamento: 00:04</span>
+                            </div>
+                            
+                            <div class="flex flex-1 bg-slate-100">
+                                <!-- Sidebar -->
+                                <div class="w-2/5 bg-white border-r border-slate-200 p-4 space-y-4 shadow-[4px_0_10px_rgba(0,0,0,0.05)] z-10">
+                                    <div class="flex items-center gap-3 border-b border-slate-100 pb-3">
+                                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-md">ES</div>
+                                        <div>
+                                            <div class="text-sm font-bold text-slate-800">${slide.visual.crm.patient}</div>
+                                            <div class="text-[10px] text-slate-500 bg-slate-100 px-1 rounded inline-block">Cliente Verificado</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="space-y-2">
+                                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Contexto Crítico</div>
+                                        <div class="bg-red-50 border border-red-200 p-2 rounded-lg">
+                                            <div class="text-xs font-bold text-red-700 flex items-center gap-1">
+                                                <i data-lucide="alert-circle" class="w-3 h-3"></i> ${slide.visual.crm.status}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Agendamento Atual</div>
+                                        <div class="bg-blue-50 border border-blue-200 p-2 rounded-lg space-y-1">
+                                            <div class="text-[11px] font-bold text-blue-900 flex items-center gap-1">
+                                                <i data-lucide="user-md" class="w-3 h-3"></i> ${slide.visual.crm.appointment.doc}
+                                            </div>
+                                            <div class="text-[10px] text-blue-700 flex items-center gap-1">
+                                                <i data-lucide="map-pin" class="w-3 h-3"></i> ${slide.visual.crm.appointment.unit}
+                                            </div>
+                                            <div class="text-[10px] text-blue-700 flex items-center gap-1">
+                                                <i data-lucide="clock" class="w-3 h-3"></i> ${slide.visual.crm.appointment.time}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Main Call Area -->
+                                <div class="flex-1 flex flex-col items-center justify-center p-6 relative overflow-hidden">
+                                    <div class="absolute inset-0 bg-slate-50 opacity-50" style="background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 20px 20px;"></div>
+                                    <div class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center animate-pulse mb-4 z-10">
+                                        <i data-lucide="phone" class="w-10 h-10 text-blue-600"></i>
+                                    </div>
+                                    <div class="text-sm font-medium text-slate-600 z-10">WebCall Audio</div>
+                                    <div class="text-xs text-slate-400 z-10">Qualidade HD • Segura</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            else if (slide.layout === 'video-triage') {
+                visualHTML = `
+                    <div class="relative h-[580px] w-[300px] mx-auto phone-frame bg-black">
+                        <div class="phone-notch"></div>
+                        
+                        <!-- Main Video: Dr. Hassan (Updated: 60yo Japanese male, serious, glasses) -->
+                        <div class="absolute inset-0 bg-slate-900 flex items-center justify-center overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1580281658626-ee379f3cce93?auto=format&fit=crop&q=80&w=600" class="w-full h-full object-cover opacity-95 scale-110" alt="Dr Hassan Examinando">
+                            
+                            <!-- Doctor Name Tag -->
+                            <div class="absolute bottom-24 left-4 bg-black/60 backdrop-blur-sm px-2 py-1 rounded text-white text-xs font-bold border border-white/10">
+                                👨‍⚕️ ${slide.visual.mainParticipant}
+                            </div>
+                        </div>
+
+                        <!-- Secondary Video: Dolores (Scheduler) - Top Right -->
+                        <div class="absolute top-12 right-4 w-20 h-28 bg-slate-800 rounded-lg border border-white/20 overflow-hidden shadow-lg z-20">
+                            <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&q=80&w=200" class="w-full h-full object-cover" alt="Dolores">
+                            <div class="absolute bottom-1 left-1 text-[8px] text-white font-bold bg-black/40 px-1 rounded">${slide.visual.secParticipant}</div>
+                        </div>
+
+                        <!-- Self View: Eva (Patient) - Bottom Right -->
+                        <div class="absolute bottom-24 right-4 w-18 h-24 bg-slate-900 rounded-lg border border-white/20 overflow-hidden shadow-lg z-20">
+                             <img src="https://images.unsplash.com/photo-1573497019236-17f8177b81e8?auto=format&fit=crop&q=80&w=150" class="w-full h-full object-cover" alt="Eva">
+                             <div class="absolute bottom-1 left-1 text-[8px] text-white font-bold bg-black/40 px-1 rounded">Você</div>
+                        </div>
+
+                        <!-- Controls -->
+                        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-4 z-30">
+                            <button class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition"><i data-lucide="phone-off" class="w-5 h-5 text-white"></i></button>
+                            <button class="w-12 h-12 bg-slate-700/80 backdrop-blur rounded-full flex items-center justify-center"><i data-lucide="mic" class="w-5 h-5 text-white"></i></button>
+                            <button class="w-12 h-12 bg-slate-700/80 backdrop-blur rounded-full flex items-center justify-center"><i data-lucide="video" class="w-5 h-5 text-white"></i></button>
+                        </div>
+                    </div>
+                `;
+            }
+            else if (slide.layout === 'mobile-carousel') {
+                visualHTML = `
+                    <div class="relative h-[580px] w-[300px] mx-auto phone-frame">
+                        <div class="phone-notch"></div>
+                        <div class="bg-[#075e54] p-3 pt-8 text-white flex items-center gap-3 shadow-md z-10 relative">
+                            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                            <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center border-2 border-green-400">
+                                <span class="text-xs font-bold text-[#075e54]">IO</span>
+                            </div>
+                            <div class="flex-1 font-bold text-sm">Oftalmoo IA</div>
+                        </div>
+                        <div class="bg-[#e5ddd5] flex-1 p-4 flex flex-col justify-center" style="background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); opacity: 0.9;">
+                            
+                            <div class="bg-white p-2 rounded-lg shadow-sm border border-slate-200 mb-2 max-w-[90%] overflow-hidden relative">
+                                <p class="text-xs text-slate-700 mb-2">Aqui estão os horários disponíveis:</p>
+                                
+                                <div class="relative w-full overflow-hidden" style="height: 120px;">
+                                    <div id="carousel-track" class="absolute flex gap-4 transition-transform duration-500 ease-in-out">
+                                        ${slide.visual.items.map(item => `
+                                            <div class="w-[200px] shrink-0 border border-slate-200 rounded p-2 bg-slate-50 flex flex-col gap-1 items-start shadow-sm">
+                                                <div class="flex gap-2 items-center mb-1 w-full">
+                                                    <img src="${item.img}" class="w-8 h-8 rounded-full object-cover border border-slate-200">
+                                                    <div class="font-bold text-xs text-slate-800 leading-tight">${item.title}</div>
+                                                </div>
+                                                <div class="text-[10px] text-slate-500 flex items-center gap-1 w-full">
+                                                    <i data-lucide="clock" class="w-3 h-3"></i> ${item.time}
+                                                </div>
+                                                <div class="text-[9px] text-slate-400 flex items-start gap-1 w-full border-t border-slate-100 pt-1 mt-1">
+                                                    <i data-lucide="map-pin" class="w-3 h-3 shrink-0"></i> ${item.loc}
+                                                </div>
+                                                <button class="w-full bg-green-500 text-white text-[10px] font-bold py-1.5 rounded mt-2 hover:bg-green-600 transition">Selecionar</button>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="self-end chat-bubble-user mt-2 animate-[slideIn_0.5s_ease-out_0.5s_both]">
+                                <div class="flex items-center gap-2 font-bold mb-1 border-b border-green-200 pb-1">
+                                    <i data-lucide="calendar-check" class="w-3 h-3"></i> Confirmado!
+                                </div>
+                                <div>Agendado com Dr. Jonas para amanhã às 10h.</div>
+                            </div>
+
+                        </div>
+                    </div>
+                `;
+            }
+            else {
+                visualHTML = `
+                    <div class="bg-white rounded-3xl p-8 shadow-2xl text-center border border-slate-100 h-[400px] flex flex-col items-center justify-center w-full max-w-md mx-auto relative overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-transparent"></div>
+                        <div class="w-24 h-24 bg-blue-600 rounded-full flex items-center justify-center shadow-lg mb-6 z-10 animate-bounce">
+                            <i data-lucide="${slide.visual.icon || 'check'}" class="w-12 h-12 text-white"></i>
+                        </div>
+                        ${slide.content.kpis ? `
+                            <div class="space-y-3 w-full z-10">
+                                ${slide.content.kpis.map(k => `
+                                    <div class="bg-slate-50 border border-slate-200 p-3 rounded-lg flex items-center justify-between font-bold text-slate-700 text-sm">
+                                        ${k} <i data-lucide="check-circle" class="w-4 h-4 text-green-500"></i>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                        ${slide.visual.doc ? `
+                             <div class="bg-slate-100 w-full p-4 rounded-xl flex items-center gap-3 border border-slate-200 z-10">
+                                <i data-lucide="file-text" class="w-8 h-8 text-red-500"></i>
+                                <div class="text-left">
+                                    <div class="font-bold text-sm text-slate-800">${slide.visual.doc}</div>
+                                    <div class="text-xs text-slate-500">Enviado via WhatsApp</div>
+                                </div>
+                             </div>
+                             <div class="mt-4 w-full h-24 bg-blue-50 rounded-lg border border-blue-100 flex items-center justify-center relative overflow-hidden z-10">
+                                <div class="text-xs font-bold text-blue-400 uppercase tracking-widest z-10">Mapa / Rota</div>
+                                <i data-lucide="map" class="w-32 h-32 text-blue-200 absolute opacity-20"></i>
+                             </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
+            // --- RENDER ---
+            const html = `
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center h-full slide-enter px-6 md:px-12">
+                    
+                    <!-- Text Content -->
+                    <div class="flex flex-col justify-center space-y-6 order-2 lg:order-1">
+                        <div>
+                            <span class="inline-block py-1 px-3 bg-blue-50 text-blue-700 font-bold tracking-wider text-[10px] uppercase mb-4 rounded-full border border-blue-100">
+                                ${slide.stepName}
+                            </span>
+                            <h2 class="text-3xl md:text-5xl font-extrabold text-slate-900 leading-tight mb-3">
+                                ${slide.title}
+                            </h2>
+                            <h3 class="text-lg md:text-2xl text-slate-500 font-medium mb-6">
+                                ${slide.subtitle}
+                            </h3>
+                            
+                            <div class="text-slate-600 text-base md:text-lg leading-relaxed space-y-4">
+                                <p>${slide.content.text}</p>
+                                ${slide.content.pain ? `<div class="bg-red-50 p-4 rounded-xl text-sm text-red-700 border-l-4 border-red-500 shadow-sm"><strong>Dor:</strong> ${slide.content.pain}</div>` : ''}
+                                ${slide.content.script ? `<div class="italic text-slate-500 pl-4 border-l-4 border-slate-300 py-1">"${slide.content.script}"</div>` : ''}
+                                ${slide.content.action ? `<div class="font-bold text-blue-700 flex items-center gap-2"><i data-lucide="mouse-pointer-2" class="w-4 h-4"></i> ${slide.content.action}</div>` : ''}
+                            </div>
+                        </div>
+
+                        ${slide.content.highlight || slide.content.impact ? `
+                            <div class="mt-6 bg-slate-900 text-white p-6 rounded-2xl shadow-xl border-t border-slate-700 relative overflow-hidden group">
+                                <div class="absolute -right-6 -bottom-6 text-slate-800 opacity-20 group-hover:opacity-30 transition-opacity transform rotate-12">
+                                    <i data-lucide="zap" class="w-32 h-32"></i>
+                                </div>
+                                <div class="relative z-10">
+                                    <h4 class="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-2">Diferencial Nuveto</h4>
+                                    <p class="text-sm md:text-base font-medium leading-snug text-slate-100">
+                                        "${slide.content.highlight || slide.content.impact}"
+                                    </p>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- Visual Stage -->
+                    <div class="order-1 lg:order-2 h-[450px] lg:h-[650px] flex items-center justify-center relative perspective-1000">
+                        <div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-full blur-3xl -z-10 transform scale-90"></div>
+                        ${visualHTML}
+                    </div>
+
+                </div>
+            `;
+            
+            stage.innerHTML = html;
+            lucide.createIcons();
+            updateProgress();
+
+            // INFINITE LOOP ANIMATION FOR SLIDE 2
+            if(slide.layout === 'search-transition') {
+                let showGoogle = true;
+                const toggleVisuals = () => {
+                    const state1 = document.getElementById('visual-state-1');
+                    const state2 = document.getElementById('visual-state-2');
+                    if(state1 && state2) {
+                        if(showGoogle) {
+                            state1.style.opacity = '1';
+                            state2.style.opacity = '0';
+                        } else {
+                            state1.style.opacity = '0';
+                            state2.style.opacity = '1';
+                        }
+                        showGoogle = !showGoogle;
+                    }
+                };
+                setTimeout(toggleVisuals, 3000); 
+                animationInterval = setInterval(toggleVisuals, 6000);
+            }
+
+            // CAROUSEL ANIMATION FOR SLIDE 4
+            if(slide.layout === 'mobile-carousel') {
+                const track = document.getElementById('carousel-track');
+                const cardWidth = 216; // Width (200) + Gap (16) approx
+                let currentScroll = 0;
+                
+                if(track) {
+                    carouselInterval = setInterval(() => {
+                        currentScroll++;
+                        if(currentScroll >= slide.visual.items.length) {
+                            currentScroll = 0;
+                        }
+                        track.style.transform = `translateX(-${currentScroll * cardWidth}px)`;
+                    }, 3000); // Shift every 3 seconds
+                }
+            }
+        }
+
+        function nextSlide() {
+            if (currentIndex < slides.length - 1) {
+                currentIndex++;
+                renderSlide(currentIndex);
+            } else {
+                currentIndex = 0; 
+                renderSlide(currentIndex);
+            }
+        }
+
+        function prevSlide() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderSlide(currentIndex);
+            }
+        }
+
+        // Init
+        renderSlide(0);
+
+        // Keyboard Nav
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'ArrowRight') nextSlide();
+            if(e.key === 'ArrowLeft') prevSlide();
+        });
+    </script>
+</body>
+</html>

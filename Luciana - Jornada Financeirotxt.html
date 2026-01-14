@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuveto - Jornada Financeira (Luciana)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .slide-enter { animation: slideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Device Mockups */
+        .phone-frame {
+            border: 12px solid #1e293b;
+            border-radius: 40px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+            position: relative;
+            z-index: 10;
+        }
+        .phone-notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 35%;
+            height: 24px;
+            background: #1e293b;
+            border-bottom-left-radius: 14px;
+            border-bottom-right-radius: 14px;
+            z-index: 20;
+        }
+
+        /* Computer Mockup */
+        .computer-frame {
+            border: 12px solid #334155;
+            border-radius: 12px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Banking/Chat UI Elements */
+        .chat-bubble-bot {
+            background-color: #f1f5f9;
+            border-radius: 16px 16px 16px 4px;
+            padding: 14px;
+            font-size: 13px;
+            color: #334155;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            max-width: 85%;
+        }
+        .chat-bubble-user {
+            background-color: #d1fae5; /* Green tint for finance/money */
+            border-radius: 16px 16px 4px 16px;
+            padding: 14px;
+            font-size: 13px;
+            color: #064e3b;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            align-self: flex-end;
+            max-width: 85%;
+        }
+        
+        /* Audio Waveform Animation */
+        .waveform-bar {
+            width: 3px;
+            background-color: #059669;
+            border-radius: 2px;
+            animation: wave 1s ease-in-out infinite;
+        }
+        @keyframes wave {
+            0%, 100% { height: 10px; }
+            50% { height: 24px; }
+        }
+
+        /* Progress Bar Gradient */
+        .progress-gradient {
+            background: linear-gradient(90deg, #0ea5e9 0%, #10b981 100%);
+        }
+
+        /* Fade Transition */
+        .fade-transition {
+            transition: opacity 0.8s ease-in-out;
+        }
+
+        /* Iframe Modal Animation */
+        .modal-enter { animation: modalIn 0.3s ease-out forwards; }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 h-screen flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 px-8 py-4 flex flex-col md:flex-row justify-between items-center shadow-md z-30 h-24 md:h-20 gap-2">
+        <div class="flex items-center gap-3 min-w-fit">
+            <div class="bg-indigo-600 text-white p-2 rounded-lg shadow-sm">
+                <i data-lucide="layers" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold text-slate-900 tracking-tight leading-none">Nuveto <span class="text-indigo-600">Finance</span></h1>
+            </div>
+        </div>
+        
+        <!-- Enhanced Progress Bar -->
+        <div class="flex flex-col w-full max-w-2xl px-4">
+            <div class="flex justify-between items-end mb-2">
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Etapa da Jornada</span>
+                <span id="progress-text" class="text-lg font-extrabold text-indigo-700 tracking-tight uppercase transition-all duration-300">1. Consideração</span>
+            </div>
+            <div class="h-3 w-full bg-slate-200 rounded-full overflow-hidden shadow-inner">
+                <div id="progress-bar" class="h-full progress-gradient transition-all duration-700 ease-out w-[10%] relative">
+                    <div class="absolute right-0 top-0 bottom-0 w-1 bg-white/30"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="min-w-fit hidden md:block">
+            <div class="flex items-center gap-1 text-slate-400 text-xs">
+                <i data-lucide="user-check" class="w-3 h-3"></i>
+                <span>Jornada: Crédito & Equipamentos</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Stage -->
+    <main class="flex-1 relative flex items-center justify-center p-4 bg-slate-50 overflow-hidden">
+        
+        <!-- Slide Content Wrapper -->
+        <div id="slide-stage" class="w-full max-w-7xl h-full flex flex-col justify-center relative z-10">
+            <!-- Content injected here via JS -->
+        </div>
+
+        <!-- Agent Modal Overlay (Modified for Popup) -->
+        <div id="agent-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex-col items-center justify-center p-4">
+            <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col modal-enter relative p-6 text-center">
+                <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="bot" class="w-8 h-8 text-indigo-600"></i>
+                </div>
+                <h3 class="text-xl font-bold text-slate-900 mb-2">Agente de Voz Ativo</h3>
+                <p class="text-sm text-slate-500 mb-6">A conversa está acontecendo em uma nova janela segura. Quando terminar, clique abaixo para continuar.</p>
+                
+                <div class="space-y-3 w-full">
+                    <button onclick="launchPopup()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition flex items-center justify-center gap-2">
+                        <i data-lucide="external-link" class="w-4 h-4"></i> Reabrir Janela do Agente
+                    </button>
+                    <button onclick="closeAgent()" class="w-full bg-white border-2 border-slate-200 hover:bg-slate-50 text-slate-700 font-bold py-3 rounded-xl transition flex items-center justify-center gap-2">
+                        <i data-lucide="check" class="w-4 h-4"></i> Finalizar e Avançar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="absolute bottom-6 right-6 flex gap-3 z-30">
+            <button onclick="prevSlide()" id="btn-prev" class="p-4 bg-white border border-slate-200 rounded-full shadow-lg text-slate-500 hover:text-indigo-600 hover:border-indigo-300 hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                <i data-lucide="arrow-left" class="w-6 h-6"></i>
+            </button>
+            <button onclick="nextSlide()" id="btn-next" class="group flex items-center gap-3 px-8 py-4 bg-indigo-600 text-white rounded-full shadow-xl hover:bg-indigo-700 hover:shadow-indigo-600/30 transition-all transform hover:scale-105 disabled:opacity-50">
+                <span class="font-bold tracking-wide text-lg">Próximo</span>
+                <i data-lucide="arrow-right" class="w-6 h-6 group-hover:translate-x-1 transition-transform"></i>
+            </button>
+        </div>
+
+    </main>
+
+    <script>
+        // Data Structure
+        const slides = [
+            {
+                stepName: "1. Persona",
+                title: "Conheça a Luciana",
+                subtitle: "Dentista, Empreendedora e Ciclista",
+                layout: "persona",
+                content: {
+                    text: "Luciana tem 34 anos, é dentista e pratica ciclismo de estrada. Ela precisa de um empréstimo para comprar um Scanner Intraoral 3D para seus tratamentos com alinhadores invisíveis. Possui conta em um banco tradicional (PJ) e 2 bancos digitais.",
+                    trigger: "Oportunidade: BNDES Finame BK (Taxas competitivas e prazos longos).",
+                    attributes: [
+                        { icon: "stethoscope", label: "Dentista", desc: "Clínica Própria" },
+                        { icon: "bike", label: "Ciclista", desc: "L'étape Brasil" },
+                        { icon: "smartphone", label: "Digital", desc: "Usa Apps Intuitivos" }
+                    ]
+                },
+                visual: {
+                    // Updated image: Woman dentist looking at screen
+                    image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=600",
+                    name: "Luciana, 34 anos"
+                }
+            },
+            {
+                stepName: "2. Simulação (Web -> Chat)",
+                title: "O Início da Jornada",
+                subtitle: "Do Site BNDES para o WhatsApp",
+                layout: "web-to-chat-loop",
+                content: {
+                    text: "Luciana acessa o site do BNDES para simular o Finame BK. Um botão minimalista a convida para o WhatsApp. Ela clica, e a transição é fluida, levando o contexto da navegação para o app de mensagem.",
+                    highlight: "Omnichannel Fluido: O cliente escolhe o canal, a conversa segue sem perda de dados."
+                },
+                visual: {
+                    siteUrl: "bndes.gov.br/finame",
+                    chatMsg: "Olá Luciana, vamos continuar por aqui. Me fale o tipo de equipamento e valor do financiamento que você busca."
+                }
+            },
+            {
+                stepName: "3. Simulação (Voz no Whats)",
+                title: "Voz no WhatsApp",
+                subtitle: "Simulação de Valores via Áudio",
+                layout: "whatsapp-voice",
+                content: {
+                    text: "Já no WhatsApp, Luciana grava um áudio: 'Quero simular valores para saber se compro o topo de linha ou o intermediário'. O Bot processa o áudio e responde com tabelas comparativas.",
+                    highlight: "Bot de Qualificação + Motor de Crédito + IA Generativa (transcrição e entendimento)."
+                },
+                visual: {
+                    audioTime: "0:15",
+                    botResponse: "Aqui estão as simulações para os modelos Scanner Pro X e Scanner Lite:"
+                }
+            },
+            {
+                stepName: "4. Avaliação (App Voice)",
+                title: "Click-to-Call Inteligente",
+                subtitle: "Tirando dúvidas complexas via Voz",
+                layout: "app-voice-agent-loop",
+                content: {
+                    text: "Luciana recebe a pré-aprovação no App. Ao ler o contrato no PC, tem dúvidas. Ela clica em 'Falar Agora' e é atendida instantaneamente pelo Agente de Voz IA.",
+                    highlight: "Integração ElevenLabs Conversational AI.",
+                    instruction: "🔊 Clique no botão verde flutuante para falar com o Agente."
+                },
+                visual: {
+                    appName: "BNDES Digital",
+                    notification: "Crédito Pré-Aprovado: R$ 85.000",
+                    status: "Em chamada..."
+                }
+            },
+            {
+                stepName: "5. Assinatura Digital",
+                title: "Fechamento do Contrato",
+                subtitle: "Multitarefa: Voz + Assinatura",
+                layout: "contract-sign",
+                content: {
+                    text: "Enquanto Luciana fala com o agente de voz, o contrato chega no WhatsApp via DocuSign. O assistente de voz a guia: 'Você recebeu o link, pode clicar para assinar digitalmente'.",
+                    highlight: "Assinatura eletrônica contextualizada e segura guiada por IA."
+                },
+                visual: {
+                    docName: "Contrato_Finame_BK.pdf",
+                    action: "Assinar Documento"
+                }
+            },
+            {
+                stepName: "6. Onboarding",
+                title: "Pós-Venda Proativo",
+                subtitle: "Journey Automation",
+                layout: "onboarding",
+                content: {
+                    text: "Contrato assinado! Luciana recebe um vídeo de boas-vindas. O bot configura lembretes automáticos de vencimento e já ensina como gerar a 2ª via se necessário.",
+                    highlight: "Base de conhecimento automatizada. O cliente nunca fica desamparado."
+                },
+                visual: {
+                    videoTitle: "Seu Scanner chegou! E agora?",
+                    reminder: "Vencimento 1ª Parcela: 15/Ago"
+                }
+            },
+            {
+                stepName: "7. Relacionamento",
+                title: "Retenção e Upsell",
+                subtitle: "6 Meses Depois...",
+                layout: "upsell-offer",
+                content: {
+                    text: "Luciana está adimplente. O sistema identifica uma oportunidade e envia proativamente: 'Luciana, vimos seu histórico. Que tal refinanciar com taxa menor?'. Ela aceita via comando de voz.",
+                    highlight: "Campanha automatizada de retenção integrada ao CRM e motor de elegibilidade."
+                },
+                visual: {
+                    saving: "Economia de R$ 2.400,00",
+                    offer: "Refinanciamento Aprovado"
+                }
+            },
+            {
+                stepName: "8. O Imprevisto",
+                title: "A Inadimplência",
+                subtitle: "Queda no Ciclismo e Mão Quebrada",
+                layout: "problem-context",
+                content: {
+                    text: "Luciana cai no treino para o L'étape Brasil e quebra 3 dedos. Sem poder atender pacientes por 8 semanas, a renda cai e ela atrasa a parcela. Com dor e dificuldade de digitar, ela ignora mensagens de texto.",
+                    pain: "Impossibilidade de trabalhar e digitar. Silenciamento de notificações."
+                },
+                visual: {
+                    xray: "https://images.unsplash.com/photo-1530497610245-94d3c16cda28?auto=format&fit=crop&q=80&w=400", // Xray or hand injury context
+                    notification: "Parcela em Atraso (5 dias)"
+                }
+            },
+            {
+                stepName: "9. Cobrança Empática",
+                title: "A Solução Ativa",
+                subtitle: "Voicebot Ativo e Humanizado",
+                layout: "active-call",
+                content: {
+                    text: "Sem resposta no digital, o Voicebot Ativo liga. Ele sabe do perfil dela. A negociação é guiada por voz (ideal para quem não pode digitar). Luciana fecha o acordo por voz e recebe o Pix.",
+                    highlight: "Discador automático + Voicebot + Meios de Pagamento integrados."
+                },
+                visual: {
+                    callerID: "Central de Relacionamento",
+                    status: "Negociando..."
+                }
+            },
+            {
+                stepName: "10. Renovação",
+                title: "O Retorno Triunfal",
+                subtitle: "Recuperação, L'étape e Novo Equipamento",
+                layout: "renewal-success",
+                content: {
+                    text: "Luciana se recupera, completa o L'étape e quita o empréstimo. O Scanner aumentou seu faturamento. O BNDES nota o fim do contrato e oferece crédito para o próximo passo: uma Impressora 3D.",
+                    highlight: "Contextualização por histórico omnichannel. A IA antecipa o próximo desejo do cliente."
+                },
+                visual: {
+                    newGoal: "Impressora 3D Alta Precisão",
+                    badge: "Crédito Pré-Aprovado"
+                }
+            },
+            {
+                stepName: "Encerramento",
+                title: "Nuveto Finance",
+                subtitle: "Tecnologia que Ouve e Entende",
+                layout: "conclusion",
+                content: {
+                    text: "Essa foi a jornada da Luciana. Ela representa milhares de brasileiros que querem crédito com clareza. Empresas que usam tecnologia para antecipar necessidades são as que crescem.",
+                    kpis: ["+ Conversão", "+ Retenção", "- Inadimplência"]
+                },
+                visual: { icon: "trending-up" }
+            }
+        ];
+
+        let currentIndex = 0;
+        let slideInterval; // Store interval ID
+
+        const stage = document.getElementById('slide-stage');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+        const agentModal = document.getElementById('agent-modal');
+        const agentIframe = document.getElementById('agent-iframe');
+
+        function updateProgress() {
+            const totalSteps = slides.length;
+            const percent = ((currentIndex + 1) / totalSteps) * 100;
+            
+            progressBar.style.width = `${percent}%`;
+            progressText.innerText = slides[currentIndex].stepName;
+            
+            btnPrev.disabled = currentIndex === 0;
+            if(currentIndex === slides.length - 1) {
+                btnNext.innerHTML = '<span class="font-bold tracking-wide text-lg">Reiniciar</span><i data-lucide="rotate-ccw" class="w-6 h-6"></i>';
+            } else {
+                btnNext.innerHTML = '<span class="font-bold tracking-wide text-lg">Próximo</span><i data-lucide="arrow-right" class="w-6 h-6 group-hover:translate-x-1 transition-transform"></i>';
+            }
+        }
+
+        // --- ElevenLabs Integration (Popup) ---
+        const agentUrl = "https://elevenlabs.io/app/talk-to?agent_id=agent_1701kesf2rsxenybfzq7mdf7e4qz&branch_id=agtbrch_9001kesf2shbekfbvf9y827h3w01";
+
+        function launchPopup() {
+            window.open(agentUrl, "ElevenLabsAgent", "width=400,height=700,menubar=no,toolbar=no,location=no,status=no");
+        }
+
+        function openAgent() {
+            // Show the control modal
+            agentModal.classList.remove('hidden');
+            agentModal.classList.add('flex');
+            // Try to open popup immediately (might be blocked if not direct click, but here it's click)
+            launchPopup();
+        }
+
+        function closeAgent() {
+            agentModal.classList.add('hidden');
+            agentModal.classList.remove('flex');
+            nextSlide(); // Auto advance as requested
+        }
+
+        function renderSlide(index) {
+            if (slideInterval) clearInterval(slideInterval);
+            const slide = slides[index];
+            let visualHTML = '';
+
+            // --- LAYOUT LOGIC ---
+
+            if(slide.layout === 'persona') {
+                visualHTML = `
+                    <div class="relative h-[500px] w-full rounded-3xl overflow-hidden shadow-2xl group border-4 border-white">
+                        <img src="${slide.visual.image}" class="w-full h-full object-cover object-top transition-transform duration-1000 group-hover:scale-105" alt="Luciana">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent"></div>
+                        <div class="absolute bottom-0 left-0 p-8 text-white w-full">
+                            <h3 class="text-4xl font-extrabold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-indigo-200 to-white">${slide.visual.name}</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                ${slide.content.attributes.map(attr => `
+                                    <div class="bg-white/10 backdrop-blur-md p-3 rounded-xl border border-white/10 hover:bg-white/20 transition-colors">
+                                        <i data-lucide="${attr.icon}" class="w-6 h-6 mb-2 text-indigo-400"></i>
+                                        <div class="text-sm font-bold">${attr.label}</div>
+                                        <div class="text-xs text-slate-300">${attr.desc}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } 
+            else if (slide.layout === 'web-to-chat-loop') {
+                // Loop Animation for Slide 2
+                visualHTML = `
+                    <div class="relative h-[580px] w-[300px] mx-auto phone-frame">
+                        <div class="phone-notch"></div>
+                        
+                        <!-- State 1: Web -->
+                        <div id="state-web" class="absolute inset-0 bg-blue-900 text-white p-4 pt-8 flex flex-col items-center transition-opacity duration-1000 opacity-100 z-20">
+                            <div class="bg-white border-b p-2 w-full flex items-center justify-between shadow-sm mb-4 rounded text-slate-500">
+                                <div class="text-[10px] flex items-center gap-1"><i data-lucide="lock" class="w-3 h-3"></i> ${slide.visual.siteUrl}</div>
+                            </div>
+                            <div class="w-12 h-12 bg-white/20 rounded-full mb-4 flex items-center justify-center"><i data-lucide="landmark" class="w-6 h-6"></i></div>
+                            <h3 class="font-bold text-lg mb-2 text-center">Finame BK</h3>
+                            <p class="text-xs text-center text-blue-200 mb-auto">Crédito para máquinas e equipamentos.</p>
+                            
+                            <!-- Minimalist Button -->
+                            <div class="absolute bottom-6 right-6 bg-green-500 text-white p-3 rounded-full shadow-lg flex items-center gap-2 cursor-pointer hover:bg-green-600 animate-bounce">
+                                <i data-lucide="message-circle" class="w-5 h-5"></i>
+                                <span class="text-xs font-bold">WhatsApp</span>
+                            </div>
+                        </div>
+
+                        <!-- State 2: WhatsApp -->
+                        <div id="state-chat" class="absolute inset-0 bg-[#e5ddd5] transition-opacity duration-1000 opacity-0 z-10 p-3 pt-8 flex flex-col" style="background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); opacity: 0;">
+                            <div class="bg-[#075e54] p-3 -mx-3 -mt-8 mb-4 text-white flex items-center gap-2">
+                                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                                <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center border-2 border-green-400"><span class="text-xs font-bold text-[#075e54]">IO</span></div>
+                                <div class="font-bold text-sm">BNDES Bot</div>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm border rounded-tl-none self-start max-w-[90%]">
+                                <p class="text-xs text-slate-800">${slide.visual.chatMsg}</p>
+                                <div class="text-[9px] text-slate-400 text-right mt-1">10:00</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Animation Logic
+                setTimeout(() => {
+                    let showWeb = true;
+                    const toggle = () => {
+                        const web = document.getElementById('state-web');
+                        const chat = document.getElementById('state-chat');
+                        if (web && chat) {
+                            if (showWeb) {
+                                web.style.opacity = '1';
+                                chat.style.opacity = '0';
+                            } else {
+                                web.style.opacity = '0';
+                                chat.style.opacity = '1';
+                            }
+                            showWeb = !showWeb;
+                        }
+                    };
+                    // Initial switch after delay
+                    setTimeout(toggle, 2500);
+                    slideInterval = setInterval(toggle, 5000);
+                }, 100);
+            }
+            else if (slide.layout === 'whatsapp-voice') {
+                visualHTML = `
+                    <div class="relative h-[580px] w-[300px] mx-auto phone-frame">
+                        <div class="phone-notch"></div>
+                        <div class="bg-[#075e54] p-3 pt-8 text-white flex items-center gap-3 shadow-md z-10 relative">
+                            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                            <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center border-2 border-green-400">
+                                <span class="text-xs font-bold text-[#075e54]">IA</span>
+                            </div>
+                            <div class="flex-1 font-bold text-sm">BNDES Bot</div>
+                        </div>
+                        <div class="bg-[#e5ddd5] flex-1 p-4 flex flex-col gap-4 overflow-hidden" style="background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); opacity: 0.9;">
+                            <div class="self-end bg-[#dcf8c6] p-3 rounded-lg shadow-sm w-3/4 flex items-center gap-2">
+                                <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white shrink-0"><i data-lucide="play" class="w-4 h-4 fill-current"></i></div>
+                                <div class="flex-1 flex items-center gap-1 h-8">
+                                    <div class="waveform-bar" style="animation-delay: 0s"></div>
+                                    <div class="waveform-bar" style="animation-delay: 0.2s"></div>
+                                    <div class="waveform-bar" style="animation-delay: 0.4s"></div>
+                                    <div class="waveform-bar" style="animation-delay: 0.1s"></div>
+                                    <div class="waveform-bar" style="animation-delay: 0.3s"></div>
+                                </div>
+                                <div class="text-[9px] text-slate-500 self-end">${slide.visual.audioTime}</div>
+                            </div>
+                            <div class="self-start bg-white p-3 rounded-lg shadow-sm w-full animate-[slideIn_0.5s_ease-out_1s_both]">
+                                <div class="text-xs text-slate-600 mb-2">${slide.visual.botResponse}</div>
+                                <div class="border border-slate-200 rounded text-[10px] overflow-hidden">
+                                    <div class="bg-slate-50 p-2 border-b flex justify-between font-bold">
+                                        <span>Modelo</span>
+                                        <span>Parcela</span>
+                                    </div>
+                                    <div class="p-2 border-b flex justify-between">
+                                        <span>Scanner Pro X</span>
+                                        <span class="font-bold">R$ 2.100</span>
+                                    </div>
+                                    <div class="p-2 flex justify-between bg-green-50">
+                                        <span>Scanner Lite</span>
+                                        <span class="font-bold text-green-700">R$ 1.450</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            else if (slide.layout === 'app-voice-agent-loop') {
+                // Multi-state Loop: App -> Computer/PDF -> Call
+                visualHTML = `
+                    <div class="relative w-full h-[580px] flex items-center justify-center">
+                        
+                        <!-- 1. App Notification State -->
+                        <div id="state-app" class="phone-frame absolute h-[580px] w-[300px] transition-opacity duration-700 z-30">
+                            <div class="phone-notch"></div>
+                            <div class="bg-indigo-600 h-1/3 p-6 pt-12 text-white relative">
+                                <i data-lucide="menu" class="w-6 h-6 absolute top-10 left-4"></i>
+                                <div class="mt-4">
+                                    <h2 class="text-xl font-bold">BNDES Digital</h2>
+                                </div>
+                            </div>
+                            <div class="bg-slate-50 h-2/3 rounded-t-3xl -mt-6 relative z-10 p-6 flex flex-col items-center">
+                                <div class="bg-white p-4 rounded-xl shadow-lg border-l-4 border-green-500 w-full mb-4">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="text-xs font-bold text-green-600">Status: Aprovado</span>
+                                        <i data-lucide="check-circle" class="w-4 h-4 text-green-500"></i>
+                                    </div>
+                                    <div class="text-lg font-bold text-slate-800 mb-1">R$ 85.000,00</div>
+                                    <div class="text-xs text-slate-500">Scanner Intraoral 3D</div>
+                                </div>
+                                <button class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg shadow hover:bg-indigo-700 text-sm">
+                                    Ver Detalhes do Contrato
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 2. Computer PDF State -->
+                        <div id="state-pdf" class="computer-frame absolute h-[400px] w-[600px] bg-slate-100 transition-opacity duration-700 opacity-0 z-20 flex flex-col">
+                            <div class="bg-slate-800 h-6 flex items-center gap-1 px-2">
+                                <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                                <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
+                                <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                            </div>
+                            <div class="flex-1 p-8 overflow-hidden relative">
+                                <div class="bg-white shadow-lg h-full w-full p-8 mx-auto border border-slate-200">
+                                    <div class="h-4 w-1/3 bg-slate-800 mb-6"></div>
+                                    <div class="h-2 w-full bg-slate-200 mb-2"></div>
+                                    <div class="h-2 w-full bg-slate-200 mb-2"></div>
+                                    <div class="h-2 w-3/4 bg-slate-200 mb-8"></div>
+                                    <div class="h-2 w-full bg-slate-200 mb-2"></div>
+                                    <div class="h-2 w-1/2 bg-slate-200 mb-2"></div>
+                                </div>
+                                <!-- Floating 'Fala Agora' Button -->
+                                <button onclick="openAgent()" class="absolute top-4 right-4 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full shadow-xl flex items-center gap-2 animate-pulse z-50 cursor-pointer transform hover:scale-105 transition">
+                                    <i data-lucide="mic" class="w-4 h-4"></i>
+                                    <span class="font-bold text-xs">Falar Agora (IA)</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 3. Active Call State -->
+                        <div id="state-call" class="phone-frame absolute h-[580px] w-[300px] bg-slate-900 transition-opacity duration-700 opacity-0 z-30">
+                             <div class="phone-notch"></div>
+                             <div class="h-full flex flex-col items-center justify-center text-white p-6">
+                                <div class="w-32 h-32 bg-indigo-500/20 rounded-full flex items-center justify-center mb-6 relative">
+                                    <i data-lucide="mic" class="w-12 h-12 text-indigo-400"></i>
+                                    <div class="absolute inset-0 border-2 border-indigo-400/50 rounded-full animate-ping"></div>
+                                </div>
+                                <h2 class="text-xl font-bold mb-2">Agente Virtual</h2>
+                                <p class="text-indigo-200 text-sm">Em chamada...</p>
+                                <div class="mt-8 flex gap-1 h-6 items-end">
+                                    <div class="w-1 bg-white animate-[bounce_1s_infinite]"></div>
+                                    <div class="w-1 bg-white animate-[bounce_1s_infinite_0.1s]"></div>
+                                    <div class="w-1 bg-white animate-[bounce_1s_infinite_0.2s]"></div>
+                                    <div class="w-1 bg-white animate-[bounce_1s_infinite_0.1s]"></div>
+                                </div>
+                             </div>
+                        </div>
+                    </div>
+                `;
+
+                // Animation Sequence Logic
+                setTimeout(() => {
+                    let step = 0;
+                    const runSequence = () => {
+                        const app = document.getElementById('state-app');
+                        const pdf = document.getElementById('state-pdf');
+                        const call = document.getElementById('state-call');
+                        
+                        if(app && pdf && call) {
+                            // Only loop if modal is not open
+                            if (!agentModal.classList.contains('hidden')) return;
+
+                            // Reset
+                            app.style.opacity = '0';
+                            pdf.style.opacity = '0';
+                            call.style.opacity = '0';
+
+                            if (step === 0) { // App
+                                app.style.opacity = '1';
+                                step = 1;
+                            } else if (step === 1) { // PDF
+                                pdf.style.opacity = '1';
+                                step = 2;
+                            } else { // Call
+                                call.style.opacity = '1';
+                                step = 0;
+                            }
+                        }
+                    };
+                    // Initial delay
+                    setTimeout(runSequence, 2000);
+                    slideInterval = setInterval(runSequence, 4000); // 4 seconds per state
+                }, 100);
+            }
+            else if (slide.layout === 'contract-sign') {
+                visualHTML = `
+                    <div class="flex gap-4 items-center justify-center h-full">
+                        <!-- Phone (Voice Active) -->
+                        <div class="relative h-[500px] w-[260px] phone-frame bg-slate-900 scale-90 origin-right">
+                             <div class="phone-notch"></div>
+                             <div class="h-full flex flex-col items-center justify-center text-white bg-slate-800">
+                                <div class="w-16 h-16 bg-indigo-500 rounded-full flex items-center justify-center mb-4 animate-pulse"><i data-lucide="mic" class="w-8 h-8"></i></div>
+                                <div class="text-sm">Agente de Voz</div>
+                                <div class="text-xs text-slate-400">Explicando cláusula 4.2...</div>
+                             </div>
+                        </div>
+
+                        <!-- Second Phone (WhatsApp/DocuSign) -->
+                        <div class="relative h-[540px] w-[280px] phone-frame shadow-2xl z-20">
+                            <div class="phone-notch"></div>
+                            <div class="bg-[#e5ddd5] h-full p-4 flex flex-col justify-center" style="background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); opacity: 0.9;">
+                                
+                                <div class="bg-white p-3 rounded-lg shadow-md border-l-4 border-yellow-500 w-full mb-4">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <i data-lucide="file-signature" class="w-5 h-5 text-yellow-600"></i>
+                                        <span class="font-bold text-sm text-slate-800">Assinatura Pendente</span>
+                                    </div>
+                                    <div class="bg-slate-100 p-2 rounded text-xs text-slate-600 mb-2 flex items-center gap-2">
+                                        <i data-lucide="file-text" class="w-4 h-4"></i> ${slide.visual.docName}
+                                    </div>
+                                    <button class="w-full bg-blue-600 text-white text-xs font-bold py-2 rounded shadow hover:bg-blue-700">
+                                        ${slide.visual.action}
+                                    </button>
+                                </div>
+                                
+                                <div class="self-center text-[10px] text-slate-500 bg-white/80 px-2 rounded-full">DocuSign Secure Link</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            else if (slide.layout === 'onboarding') {
+                visualHTML = `
+                    <div class="relative h-[580px] w-[300px] mx-auto phone-frame">
+                        <div class="phone-notch"></div>
+                        <div class="bg-[#075e54] p-3 pt-8 text-white flex items-center gap-3 shadow-md z-10 relative">
+                            <div class="flex-1 font-bold text-sm">BNDES Bot</div>
+                        </div>
+                        <div class="bg-[#e5ddd5] flex-1 p-4 flex flex-col gap-4 overflow-y-auto" style="background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');">
+                            
+                            <!-- Video Card -->
+                            <div class="bg-white rounded-lg shadow-sm overflow-hidden w-full max-w-[85%] self-start">
+                                <div class="h-32 bg-slate-800 relative flex items-center justify-center group cursor-pointer">
+                                    <img src="https://images.unsplash.com/photo-1581093588401-fbb07366f6ce?auto=format&fit=crop&q=80&w=400" class="absolute inset-0 w-full h-full object-cover opacity-60">
+                                    <div class="w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center group-hover:scale-110 transition"><i data-lucide="play" class="w-5 h-5 text-white fill-current"></i></div>
+                                </div>
+                                <div class="p-2">
+                                    <div class="font-bold text-xs mb-1">${slide.visual.videoTitle}</div>
+                                    <div class="text-[10px] text-slate-500">Tutorial de Onboarding</div>
+                                </div>
+                            </div>
+
+                            <!-- Reminder -->
+                            <div class="bg-white p-3 rounded-lg shadow-sm self-start border-l-4 border-indigo-500">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <i data-lucide="calendar" class="w-4 h-4 text-indigo-500"></i>
+                                    <span class="font-bold text-xs">Lembrete Inteligente</span>
+                                </div>
+                                <div class="text-xs text-slate-600">${slide.visual.reminder}</div>
+                                <div class="mt-2 flex gap-2">
+                                    <button class="bg-slate-100 text-[10px] px-2 py-1 rounded hover:bg-slate-200">Gerar Boleto</button>
+                                    <button class="bg-slate-100 text-[10px] px-2 py-1 rounded hover:bg-slate-200">Copiar Pix</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                `;
+            }
+            else if (slide.layout === 'upsell-offer') {
+                visualHTML = `
+                    <div class="relative h-[580px] w-[300px] mx-auto phone-frame">
+                         <div class="phone-notch"></div>
+                         <div class="h-full bg-gradient-to-br from-indigo-900 to-slate-900 flex flex-col items-center justify-center p-6 text-center text-white relative overflow-hidden">
+                            <!-- Confetti Effect (CSS only visualization) -->
+                            <div class="absolute top-0 left-0 w-full h-full opacity-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIi8+Cjwvc3ZnPg==')]"></div>
+                            
+                            <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(34,197,94,0.6)] mb-6 animate-bounce">
+                                <i data-lucide="percent" class="w-10 h-10 text-white"></i>
+                            </div>
+
+                            <h3 class="text-2xl font-bold mb-2">${slide.visual.offer}</h3>
+                            <p class="text-indigo-200 text-sm mb-6">Parabéns pela pontualidade! Temos uma condição especial.</p>
+
+                            <div class="bg-white/10 backdrop-blur-lg rounded-xl p-4 w-full border border-white/20 mb-6">
+                                <div class="text-xs text-slate-300 uppercase tracking-wider">Economia Estimada</div>
+                                <div class="text-2xl font-bold text-green-400">${slide.visual.saving}</div>
+                            </div>
+
+                            <button class="w-full bg-white text-indigo-900 font-bold py-3 rounded-full flex items-center justify-center gap-2 hover:scale-105 transition">
+                                <i data-lucide="mic" class="w-4 h-4"></i> Aceitar por Voz
+                            </button>
+                         </div>
+                    </div>
+                `;
+            }
+            else if (slide.layout === 'problem-context') {
+                visualHTML = `
+                    <div class="relative h-[580px] w-[300px] mx-auto phone-frame">
+                        <div class="phone-notch"></div>
+                        <!-- Blurred Background (Simulating "Do Not Disturb" focus) -->
+                        <div class="absolute inset-0 bg-cover bg-center filter blur-sm brightness-50" style="background-image: url('https://images.unsplash.com/photo-1555421689-d68471e189f2?auto=format&fit=crop&q=80&w=400');"></div>
+                        
+                        <!-- Notification Overlay -->
+                        <div class="absolute inset-0 flex flex-col items-center pt-20 px-4">
+                            <div class="text-white text-4xl font-thin mb-8">09:41</div>
+                            
+                            <!-- Injury Context -->
+                            <div class="bg-white/90 backdrop-blur rounded-xl p-3 w-full shadow-lg mb-4 flex gap-3 items-center">
+                                <img src="${slide.visual.xray}" class="w-12 h-12 rounded bg-black object-cover">
+                                <div>
+                                    <div class="text-xs font-bold text-slate-800">Hospital Ortopédico</div>
+                                    <div class="text-[10px] text-slate-500">Resultado Exame: Fratura (3 dedos)</div>
+                                </div>
+                            </div>
+
+                            <!-- Financial Alert -->
+                            <div class="bg-red-500/90 backdrop-blur text-white rounded-xl p-3 w-full shadow-lg border-l-4 border-white animate-pulse">
+                                <div class="flex justify-between items-start">
+                                    <div class="flex gap-2">
+                                        <div class="bg-white/20 p-1 rounded"><i data-lucide="alert-triangle" class="w-4 h-4"></i></div>
+                                        <div>
+                                            <div class="text-xs font-bold">Aviso Financeiro</div>
+                                            <div class="text-[10px] opacity-90">${slide.visual.notification}</div>
+                                        </div>
+                                    </div>
+                                    <span class="text-[9px]">Agora</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-auto mb-12 text-white/50 text-xs flex items-center gap-1">
+                                <i data-lucide="moon" class="w-3 h-3"></i> Modo Não Perturbe Ativo
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            else if (slide.layout === 'active-call') {
+                visualHTML = `
+                    <div class="relative h-[580px] w-[300px] mx-auto phone-frame">
+                        <div class="phone-notch"></div>
+                        <div class="h-full bg-gradient-to-b from-slate-800 to-black text-white flex flex-col items-center pt-20 p-6 relative overflow-hidden">
+                            <!-- Background Wave Animation -->
+                            <div class="absolute inset-0 flex items-center justify-center opacity-10">
+                                <div class="w-64 h-64 border border-white rounded-full animate-[ping_2s_infinite]"></div>
+                                <div class="w-48 h-48 border border-white rounded-full absolute animate-[ping_2s_infinite_0.5s]"></div>
+                            </div>
+
+                            <div class="w-24 h-24 bg-slate-700 rounded-full flex items-center justify-center mb-6 z-10">
+                                <i data-lucide="phone-incoming" class="w-10 h-10 text-white animate-bounce"></i>
+                            </div>
+
+                            <h2 class="text-2xl font-bold mb-1">${slide.visual.callerID}</h2>
+                            <p class="text-slate-400 text-sm mb-8">BNDES Voice Bot</p>
+
+                            <div class="bg-slate-800/80 rounded-lg p-4 w-full border border-slate-700 mb-8 backdrop-blur">
+                                <div class="text-xs text-green-400 font-bold mb-1 flex items-center gap-2">
+                                    <div class="w-2 h-2 bg-green-500 rounded-full"></div> ${slide.visual.status}
+                                </div>
+                                <p class="text-[10px] text-slate-300">"Olá Luciana, sabemos do seu momento. Podemos adiar a parcela para o próximo mês?"</p>
+                            </div>
+
+                            <div class="mt-auto flex gap-6 w-full justify-center pb-8 z-10">
+                                <button class="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center hover:scale-110 transition shadow-lg"><i data-lucide="phone-off" class="w-6 h-6 fill-current"></i></button>
+                                <button class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center hover:scale-110 transition shadow-[0_0_20px_rgba(34,197,94,0.5)]"><i data-lucide="phone" class="w-6 h-6 fill-current"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            else if (slide.layout === 'renewal-success') {
+                visualHTML = `
+                    <div class="relative h-[580px] w-[300px] mx-auto phone-frame">
+                        <div class="phone-notch"></div>
+                        <div class="h-full bg-white flex flex-col relative">
+                            <div class="h-1/3 bg-indigo-600 rounded-b-[40px] relative z-0 flex items-center justify-center">
+                                <i data-lucide="party-popper" class="w-20 h-20 text-indigo-400 opacity-50 absolute"></i>
+                            </div>
+                            
+                            <div class="px-6 -mt-16 z-10">
+                                <!-- Cycling Success Card -->
+                                <div class="bg-white rounded-2xl shadow-xl p-4 mb-4 border border-slate-100 flex items-center gap-3">
+                                    <img src="https://images.unsplash.com/photo-1541625602330-2277a4c46182?auto=format&fit=crop&q=80&w=200" class="w-12 h-12 rounded-full object-cover border-2 border-yellow-400">
+                                    <div>
+                                        <div class="text-[10px] text-slate-500 font-bold uppercase">Conquista</div>
+                                        <div class="font-bold text-sm text-slate-800">L'étape Brasil Concluído! 🚴‍♀️</div>
+                                    </div>
+                                </div>
+
+                                <!-- Financial Success Card -->
+                                <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-xl p-5 text-white text-center transform hover:scale-105 transition duration-500">
+                                    <div class="bg-white/20 inline-block px-3 py-1 rounded-full text-[10px] font-bold mb-3 border border-white/30">
+                                        ${slide.visual.badge}
+                                    </div>
+                                    <h3 class="font-bold text-lg leading-tight mb-2">${slide.visual.newGoal}</h3>
+                                    <p class="text-xs text-blue-100 mb-4">Expanda sua clínica agora.</p>
+                                    <button class="bg-white text-indigo-600 text-xs font-bold py-2 px-6 rounded-full shadow-lg w-full">
+                                        Simular Agora
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            else {
+                // Conclusion
+                visualHTML = `
+                    <div class="bg-white rounded-3xl p-8 shadow-2xl text-center border border-slate-100 h-[450px] flex flex-col items-center justify-center w-full max-w-md mx-auto relative overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-indigo-50 to-blue-50"></div>
+                        
+                        <div class="w-24 h-24 bg-indigo-600 rounded-full flex items-center justify-center shadow-lg mb-8 z-10 animate-bounce">
+                            <i data-lucide="${slide.visual.icon}" class="w-10 h-10 text-white"></i>
+                        </div>
+                        
+                        <h3 class="text-2xl font-bold text-slate-800 mb-6 z-10">Resultados Nuveto</h3>
+                        
+                        <div class="w-full space-y-3 z-10">
+                            ${slide.content.kpis ? slide.content.kpis.map(kpi => `
+                                <div class="bg-white border border-slate-200 p-4 rounded-xl flex items-center justify-between font-bold text-slate-700 shadow-sm hover:shadow-md transition">
+                                    <span>${kpi}</span>
+                                    <i data-lucide="check-circle-2" class="w-5 h-5 text-green-500"></i>
+                                </div>
+                            `).join('') : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // --- MAIN HTML STRUCTURE ---
+            const html = `
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center h-full slide-enter px-6 md:px-12">
+                    
+                    <!-- Text Content -->
+                    <div class="flex flex-col justify-center space-y-6 order-2 lg:order-1">
+                        <div>
+                            <span class="inline-block py-1 px-3 bg-indigo-50 text-indigo-700 font-bold tracking-wider text-[10px] uppercase mb-4 rounded-full border border-indigo-100">
+                                ${slide.stepName}
+                            </span>
+                            <h2 class="text-3xl md:text-5xl font-extrabold text-slate-900 leading-tight mb-3">
+                                ${slide.title}
+                            </h2>
+                            <h3 class="text-lg md:text-2xl text-slate-500 font-medium mb-6">
+                                ${slide.subtitle}
+                            </h3>
+                            
+                            <div class="text-slate-600 text-base md:text-lg leading-relaxed space-y-4">
+                                <p>${slide.content.text}</p>
+                                ${slide.content.trigger ? `<div class="bg-blue-50 p-4 rounded-xl text-sm text-blue-800 border-l-4 border-blue-500 shadow-sm flex items-center gap-2"><i data-lucide="lightbulb" class="w-5 h-5"></i> <strong>${slide.content.trigger}</strong></div>` : ''}
+                                ${slide.content.pain ? `<div class="bg-red-50 p-4 rounded-xl text-sm text-red-700 border-l-4 border-red-500 shadow-sm flex items-center gap-2"><i data-lucide="alert-triangle" class="w-5 h-5"></i> <strong>Dor:</strong> ${slide.content.pain}</div>` : ''}
+                                ${slide.content.instruction ? `<div class="mt-4 p-3 bg-green-50 text-green-800 rounded-lg border border-green-200 text-sm font-bold animate-pulse">${slide.content.instruction}</div>` : ''}
+                            </div>
+                        </div>
+
+                        ${slide.content.highlight ? `
+                            <div class="mt-6 bg-slate-900 text-white p-6 rounded-2xl shadow-xl border-t border-slate-700 relative overflow-hidden group">
+                                <div class="absolute -right-6 -bottom-6 text-slate-800 opacity-20 group-hover:opacity-30 transition-opacity transform rotate-12">
+                                    <i data-lucide="cpu" class="w-32 h-32"></i>
+                                </div>
+                                <div class="relative z-10">
+                                    <h4 class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-2">Solução Nuveto</h4>
+                                    <p class="text-sm md:text-base font-medium leading-snug text-slate-100">
+                                        "${slide.content.highlight}"
+                                    </p>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- Visual Stage -->
+                    <div class="order-1 lg:order-2 h-[500px] lg:h-[650px] flex items-center justify-center relative perspective-1000">
+                        <!-- Background Blob -->
+                        <div class="absolute inset-0 bg-gradient-to-br from-indigo-100 to-blue-50 rounded-full blur-3xl -z-10 transform scale-90 opacity-60"></div>
+                        ${visualHTML}
+                    </div>
+
+                </div>
+            `;
+            
+            stage.innerHTML = html;
+            lucide.createIcons();
+            updateProgress();
+        }
+
+        function nextSlide() {
+            if (currentIndex < slides.length - 1) {
+                currentIndex++;
+                renderSlide(currentIndex);
+            } else {
+                currentIndex = 0; 
+                renderSlide(currentIndex);
+            }
+        }
+
+        function prevSlide() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderSlide(currentIndex);
+            }
+        }
+
+        // Init
+        renderSlide(0);
+
+        // Keyboard Nav
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'ArrowRight') nextSlide();
+            if(e.key === 'ArrowLeft') prevSlide();
+        });
+    </script>
+</body>
+</html>

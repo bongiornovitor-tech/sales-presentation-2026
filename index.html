@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuveto - Sales Storytelling Deck</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Configuração do Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: '#0a1e3c',
+                        blue: {
+                            400: '#00c2ff',
+                            500: '#3b82f6',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Estilos CSS Globais -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100;0,200;0,300;0,400;0,600;0,700;1,400&display=swap');
+        
+        body { 
+            font-family: 'Noto Sans', sans-serif;
+            background-color: #0a1e3c;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .presentation-wrapper {
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+            background-color: #0a1e3c;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.6s ease, transform 0.6s ease;
+            transform: scale(1.02);
+            z-index: 0;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1);
+            z-index: 10;
+        }
+
+        .slide-bg {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            z-index: -1;
+            transition: transform 10s linear;
+        }
+
+        .slide.active .slide-bg {
+            transform: scale(1.05);
+        }
+
+        .slide-bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(10, 30, 60, 0.96) 0%, rgba(10, 30, 60, 0.85) 100%);
+        }
+
+        /* Elements */
+        .big-stat {
+            font-size: 5rem;
+            font-weight: 200;
+            line-height: 1;
+            background: linear-gradient(180deg, #fff 0%, rgba(255,255,255,0.4) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        @media (min-width: 768px) { .big-stat { font-size: 8rem; } }
+
+        .concept-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .concept-card:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-5px);
+            border-color: #00c2ff;
+        }
+        
+        .hub-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            height: 100%;
+        }
+        .hub-card:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: #00c2ff;
+            transform: translateY(-5px);
+        }
+
+        /* Panels */
+        .deep-dive-panel {
+            position: fixed; right: 0; top: 0; bottom: 0;
+            width: 400px; max-width: 90vw;
+            background: rgba(10, 30, 60, 0.98);
+            backdrop-filter: blur(20px);
+            z-index: 950;
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            padding: 40px;
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            box-shadow: -20px 0 50px rgba(0,0,0,0.5);
+            overflow-y: auto;
+        }
+        .deep-dive-panel.open { transform: translateX(0); }
+        
+        .deep-dive-content h3 {
+            color: #00c2ff; font-size: 1.2rem; font-weight: 700;
+            margin-bottom: 1rem; margin-top: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 0.5rem;
+        }
+        .deep-dive-content p {
+            line-height: 1.6; margin-bottom: 1rem; font-size: 0.95rem; color: rgba(255, 255, 255, 0.8);
+        }
+        .deep-dive-content ul {
+            list-style: disc; padding-left: 1.5rem; margin-bottom: 1rem; color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Sidebar */
+        .sidebar-overlay {
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px); z-index: 800; opacity: 0;
+            pointer-events: none; transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.open { opacity: 1; pointer-events: auto; }
+
+        .sidebar {
+            position: fixed; left: 0; top: 0; bottom: 0; width: 320px;
+            background: rgba(10, 30, 60, 0.98); backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            transform: translateX(-100%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 900; padding: 2rem; display: flex; flex-direction: column;
+        }
+        .sidebar.open { transform: translateX(0); }
+
+        .nav-item {
+            display: flex; align-items: center; gap: 15px; padding: 16px; border-radius: 12px;
+            cursor: pointer; transition: all 0.2s; color: rgba(255, 255, 255, 0.6);
+            border: 1px solid transparent;
+        }
+        .nav-item:hover { background: rgba(255, 255, 255, 0.05); color: white; border-color: rgba(255, 255, 255, 0.1); }
+        .nav-item.active { background: rgba(0, 194, 255, 0.1); color: #00c2ff; border-color: rgba(0, 194, 255, 0.3); }
+        
+        .section-label {
+            font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em;
+            color: rgba(255, 255, 255, 0.3); margin-top: 24px; margin-bottom: 8px; padding-left: 16px;
+        }
+
+        /* Build */
+        .build { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+        .slide.active .build.show { opacity: 1; transform: translateY(0); }
+
+        /* Controls */
+        .control-btn {
+            width: 48px; height: 48px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white;
+        }
+        .control-btn:hover { background: white; color: #0a1e3c; }
+
+        /* Themes */
+        .light-theme .slide-bg::after { background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 244, 248, 0.9) 100%); }
+        .light-theme { color: #0a1e3c; }
+        .light-theme .control-btn { border-color: rgba(10,30,60,0.1); color: #0a1e3c; background: rgba(10,30,60,0.05); }
+        .light-theme .control-btn:hover { background: #0a1e3c; color: white; }
+        
+        .glass-box { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 3.5rem; border-radius: 2rem; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 1.5rem; padding: 2.5rem; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="importmap">
+        {
+          "imports": {
+            "react": "https://esm.sh/react@18.2.0",
+            "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+            "lucide-react": "https://esm.sh/lucide-react@0.263.1"
+          }
+        }
+    </script>
+
+    <script type="text/babel" data-type="module">
+        import React, { useState, useEffect, useCallback } from 'react';
+        import ReactDOM from 'react-dom/client';
+        import { 
+            ArrowRight, Heart, Cpu, ShieldCheck, BarChart3, Activity, 
+            ChevronRight, ChevronLeft, MessageSquare, AlertTriangle, 
+            TrendingDown, Mic, Layers, Zap, Clock, Users, Menu, X, Map,
+            BookOpen, Info, PhoneOff, Bot, Unplug, Undo2, FileWarning
+        } from 'lucide-react';
+
+        const LOGO_NUVETO_BRANCO = ""; 
+        const LOGO_NUVETO_PRETO = "";
+
+        const App = () => {
+            const [currentSlide, setCurrentSlide] = useState(0);
+            const [buildStep, setBuildStep] = useState(0);
+            const [menuOpen, setMenuOpen] = useState(false);
+            const [deepDiveOpen, setDeepDiveOpen] = useState(false);
+
+            const navigateToSlideId = (id) => {
+                const index = slides.findIndex(s => s.id === id);
+                if (index !== -1) {
+                    setCurrentSlide(index);
+                    setBuildStep(0);
+                    setMenuOpen(false);
+                }
+            };
+
+            const slides = [
+                // === CAMADA 0: ABERTURA ===
+                {
+                    id: 'c0_hero',
+                    bg: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2000',
+                    section: 'Abertura',
+                    title: 'Início',
+                    maxBuilds: 3,
+                    content: (
+                        <div className="max-w-6xl w-full px-4 md:px-12 text-center">
+                            <h1 className={`build text-6xl md:text-9xl font-extralight mb-8 leading-none tracking-tight text-white ${buildStep >= 1 ? 'show' : ''}`}>
+                                RELAÇÕES<br/>
+                                <span className="font-bold text-[#00c2ff]">DURADOURAS</span>
+                            </h1>
+                            <div className={`build mt-12 flex flex-wrap justify-center gap-8 md:gap-16 ${buildStep >= 2 ? 'show' : ''}`}>
+                                <div className="text-center opacity-60">
+                                    <X size={40} className="mx-auto mb-2 text-red-400" />
+                                    <p className="uppercase tracking-widest text-sm">Só Tecnologia</p>
+                                </div>
+                                <div className="text-center opacity-60">
+                                    <X size={40} className="mx-auto mb-2 text-red-400" />
+                                    <p className="uppercase tracking-widest text-sm">Só Automação</p>
+                                </div>
+                                <div className="text-center">
+                                    <Heart size={40} className="mx-auto mb-2 text-[#00c2ff]" />
+                                    <p className="uppercase tracking-widest text-sm font-bold text-white">Conexão Real</p>
+                                </div>
+                            </div>
+                        </div>
+                    ),
+                    deepDive: (
+                        <div className="deep-dive-content">
+                            <h3>Abertura Inspiracional</h3>
+                            <p><strong>A Narrativa:</strong> O que realmente constrói relações duradouras? Não é tecnologia por si só. Não é estar em todos os canais. E definitivamente não é automatizar tudo.</p>
+                            <p>Relações de qualidade nascem da forma como nos conectamos — especialmente quando importa.</p>
+                        </div>
+                    )
+                },
+                {
+                    id: 'c0_harvard',
+                    bg: 'https://images.unsplash.com/photo-1434039353568-461f24cdc7db?q=80&w=2000',
+                    section: 'Abertura',
+                    title: 'Harvard',
+                    maxBuilds: 2,
+                    content: (
+                        <div className="flex flex-col items-center justify-center w-full px-4 md:px-12">
+                            <div className={`build text-[#00c2ff] font-bold tracking-[0.5em] text-sm uppercase mb-12 ${buildStep >= 0 ? 'show' : ''}`}>
+                                O Estudo de Harvard
+                            </div>
+                            <div className="flex flex-col md:flex-row items-center gap-12">
+                                <div className={`build text-center ${buildStep >= 1 ? 'show' : ''}`}>
+                                    <span className="big-stat">80</span>
+                                    <p className="text-2xl font-light uppercase tracking-widest mt-2">Anos de Pesquisa</p>
+                                </div>
+                                <div className={`build w-[2px] h-32 bg-white/20 hidden md:block ${buildStep >= 2 ? 'show' : ''}`}></div>
+                                <div className={`build text-left max-w-xl ${buildStep >= 2 ? 'show' : ''}`}>
+                                    <p className="text-3xl md:text-4xl font-light leading-tight text-center md:text-left">
+                                        "A felicidade nasce da <span className="font-bold text-[#00c2ff]">qualidade</span> das nossas relações."
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    ),
+                    deepDive: (
+                        <div className="deep-dive-content">
+                            <h3>Fundamento Científico</h3>
+                            <p>Há mais de 80 anos, Harvard estuda: "o que sustenta uma vida feliz?". A resposta consistente: a qualidade das relações.</p>
+                            <p><strong>Aplicação ao Negócio:</strong> Marcas também constroem relações. Clientes sentem quando elas funcionam ou quando são apenas transacionais.</p>
+                        </div>
+                    )
+                },
+                {
+                    id: 'c0_truths',
+                    bg: null,
+                    section: 'Abertura',
+                    title: 'Verdades',
+                    isLight: true,
+                    maxBuilds: 5,
+                    content: (
+                        <div className="w-full h-full bg-white flex flex-col items-center justify-center">
+                            <h2 className={`build text-3xl md:text-4xl font-bold mb-8 md:mb-16 text-[#0a1e3c] ${buildStep >= 0 ? 'show' : ''}`}>Verdades que nos guiam</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-4 md:px-12 w-full max-w-7xl">
+                                {[
+                                    { icon: Cpu, label: "Tech Aproxima", sub: "IA fortalece, não substitui" },
+                                    { icon: Activity, label: "Esforço", sub: "Definidor de lealdade" },
+                                    { icon: ShieldCheck, label: "Confiança", sub: "Disponibilidade crítica" },
+                                    { icon: BarChart3, label: "Empatia", sub: "Dados com ação" }
+                                ].map((item, i) => (
+                                    <div key={i} className={`build flex flex-col items-center p-8 bg-slate-50 rounded-2xl border border-slate-100 text-center hover:shadow-lg transition-all ${buildStep >= (i+1) ? 'show' : ''}`}>
+                                        <div className="text-blue-600 mb-6"><item.icon size={48} strokeWidth={1.5} /></div>
+                                        <h3 className="text-xl font-bold text-[#0a1e3c] mb-2">{item.label}</h3>
+                                        <p className="text-sm text-slate-500 uppercase tracking-wide">{item.sub}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ),
+                    deepDive: (
+                        <div className="deep-dive-content">
+                            <h3>Os 4 Pilares da Nuveto</h3>
+                            <ul>
+                                <li><strong>Tecnologia deve aproximar:</strong> Automação só gera valor quando respeita o contexto humano.</li>
+                                <li><strong>Experiência não é canal. É esforço:</strong> Quanto mais difícil é resolver, pior é a experiência.</li>
+                                <li><strong>Disponibilidade é parte da experiência:</strong> Confiança morre quando o canal falha no momento crítico.</li>
+                                <li><strong>Dados sem inteligência não geram empatia:</strong> É preciso entender, decidir e agir melhor.</li>
+                            </ul>
+                        </div>
+                    )
+                },
+                {
+                    id: 'c0_transition',
+                    bg: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2000',
+                    section: 'Abertura',
+                    title: 'O Mercado Mudou',
+                    maxBuilds: 3,
+                    content: (
+                        <div className="text-center max-w-5xl px-12">
+                            <h2 className={`build text-4xl md:text-8xl font-extralight mb-12 leading-tight text-white ${buildStep >= 1 ? 'show' : ''}`}>
+                                O mercado mudou. <br />
+                                <span className="font-bold">A conversa mudou.</span>
+                            </h2>
+                            <p className={`build text-2xl md:text-3xl text-blue-100/60 mb-20 font-light max-w-3xl mx-auto leading-relaxed ${buildStep >= 2 ? 'show' : ''}`}>
+                                Para entender o impacto real nos negócios, precisamos olhar para as transformações que estão redefinindo as jornadas digitais.
+                            </p>
+                            <div className={`build ${buildStep >= 3 ? 'show' : ''}`}>
+                                <button 
+                                    onClick={() => navigateToSlideId('c1_rupture')}
+                                    className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 rounded-full border border-white/20 text-white/80 animate-bounce hover:bg-white hover:text-navy transition-colors"
+                                >
+                                    <ArrowRight size={20} />
+                                    <span className="text-sm font-bold uppercase tracking-widest">Avançar para Contexto</span>
+                                </button>
+                            </div>
+                        </div>
+                    ),
+                    deepDive: (
+                        <div className="deep-dive-content">
+                            <h3>Transição</h3>
+                            <p>Esta é a ponte entre o inspiracional (Camada 0) e o contexto de mercado (Camada 1).</p>
+                        </div>
+                    )
+                },
+
+                // === CAMADA 1: CONTEXTO ===
+                {
+                    id: 'c1_rupture',
+                    bg: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2000',
+                    section: 'Contexto',
+                    title: 'O Ponto de Ruptura',
+                    maxBuilds: 3,
+                    content: (
+                        <div className="max-w-6xl w-full px-12 md:px-24">
+                            <h2 className={`build text-[#00c2ff] font-bold tracking-[0.3em] text-sm uppercase mb-6 ${buildStep >= 0 ? 'show' : ''}`}>
+                                O Ponto de Ruptura
+                            </h2>
+                            <h1 className={`build text-4xl md:text-7xl font-light mb-12 leading-tight text-white ${buildStep >= 1 ? 'show' : ''}`}>
+                                Durante anos, acreditamos em <br/> uma narrativa confortável:
+                            </h1>
+                            <div className={`build border-l-4 border-blue-500 pl-8 py-2 mb-12 ${buildStep >= 2 ? 'show' : ''}`}>
+                                <p className="text-3xl text-white font-medium italic">
+                                    "Mais canais, mais automação e mais bots <br/> resolvem a experiência."
+                                </p>
+                            </div>
+                            <p className={`build text-2xl text-blue-100/60 font-light ${buildStep >= 3 ? 'show' : ''}`}>
+                                Isso funcionou... <span className="text-white font-bold">até parar de funcionar.</span>
+                            </p>
+                        </div>
+                    ),
+                    deepDive: (
+                        <div className="deep-dive-content">
+                            <h3>O Ponto de Ruptura</h3>
+                            <p>Durante anos, o mercado acreditou em uma narrativa confortável: "Mais canais, mais automação e mais bots resolvem experiência."</p>
+                            <p>Isso funcionou… até parar de funcionar. O que vemos hoje não é falta de tecnologia. É excesso.</p>
+                        </div>
+                    )
+                },
+                {
+                    id: 'c1_excess',
+                    bg: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2000',
+                    section: 'Contexto',
+                    title: 'Excesso de Tecnologia',
+                    maxBuilds: 4,
+                    content: (
+                        <div className="max-w-5xl w-full px-12 text-center">
+                            <h2 className={`build text-4xl md:text-6xl font-light mb-16 text-white ${buildStep >= 1 ? 'show' : ''}`}>
+                                O que vemos hoje não é falta de tecnologia. <br/>
+                                <span className="font-bold text-[#00c2ff]">É excesso.</span>
+                            </h2>
+                            <div className="grid md:grid-cols-3 gap-8 mb-16">
+                                {[
+                                    { icon: MessageSquare, label: "Mensagens" },
+                                    { icon: Layers, label: "Fluxos" },
+                                    { icon: Cpu, label: "Automação" }
+                                ].map((item, i) => (
+                                    <div key={i} className={`build glass-card ${buildStep >= (i+2) ? 'show' : ''}`}>
+                                        <item.icon className="mx-auto text-[#00c2ff] mb-6" size={40} />
+                                        <p className="text-xl font-bold text-white">Excesso de {item.label}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ),
+                    deepDive: (
+                        <div className="deep-dive-content">
+                            <h3>Saturação</h3>
+                            <p>O resultado do excesso não é eficiência. É saturação. Excesso de mensagens, fluxos e automação sem critério.</p>
+                        </div>
+                    )
+                },
+                {
+                    id: 'c1_paradox',
+                    bg: 'https://images.unsplash.com/photo-1512428559087-560fa5ce7d5b?q=80&w=2000',
+                    section: 'Contexto',
+                    title: 'O Paradoxo Moderno',
+                    maxBuilds: 3,
+                    content: (
+                        <div className="max-w-7xl w-full px-12 md:px-24 grid md:grid-cols-2 gap-16 items-center">
+                            <div className={`build ${buildStep >= 1 ? 'show' : ''}`}>
+                                <div className="text-[#00c2ff] font-bold tracking-widest text-xs uppercase mb-4">O Paradoxo Moderno</div>
+                                <h2 className="text-5xl font-light leading-tight mb-8 text-white">
+                                    As empresas nunca tiveram <span className="font-bold">tantos canais</span>.
+                                </h2>
+                                <div className="w-20 h-1 bg-blue-500 mb-8"></div>
+                                <p className="text-3xl font-light text-blue-100/80">
+                                    E os clientes nunca fizeram <span className="font-bold text-white">tanto esforço</span> para resolver coisas simples.
+                                </p>
+                            </div>
+                            <div className={`build space-y-4 ${buildStep >= 2 ? 'show' : ''}`}>
+                                <div className="glass-card p-8">
+                                    <h3 className="text-xl font-bold mb-6 text-white">O problema não é o canal. É o uso:</h3>
+                                    <ul className="space-y-4 text-blue-100/70 text-lg">
+                                        <li className="flex items-center gap-3"><AlertTriangle size={20} className="text-blue-400" /> Jornadas longas</li>
+                                        <li className="flex items-center gap-3"><AlertTriangle size={20} className="text-blue-400" /> Troca constante</li>
+                                        <li className="flex items-center gap-3"><AlertTriangle size={20} className="text-blue-400" /> Repetição</li>
+                                        <li className={`flex items-center gap-3 text-white font-bold ${buildStep >= 3 ? 'show' : 'opacity-50'}`}><AlertTriangle size={20} className="text-red-400" /> Falta de sincronicidade</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    ),
+                    deepDive: (
+                        <div className="deep-dive-content">
+                            <h3>O Paradoxo</h3>
+                            <p>Problema: Jornadas longas para resolver assuntos simples, troca constante de canal e repetição de informações.</p>
+                        </div>
+                    )
+                },
+                {
+                    id: 'c1_transition',
+                    bg: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2000',
+                    section: 'Contexto',
+                    title: 'Transição Diagnóstico',
+                    maxBuilds: 2,
+                    content: (
+                        <div className="text-center max-w-5xl px-12">
+                            <h2 className={`build text-4xl md:text-6xl font-light mb-12 leading-tight text-white ${buildStep >= 1 ? 'show' : ''}`}>
+                                Onde sua operação começa a <br />
+                                <span className="font-bold text-[#00c2ff]">perder eficiência?</span>
+                            </h2>
+                            <div className={`build ${buildStep >= 2 ? 'show' : ''}`}>
+                                <button 
+                                    onClick={() => navigateToSlideId('c2_hub')}
+                                    className="inline-flex items-center gap-4 px-8 py-4 bg-white text-[#0a1e3c] rounded-full font-bold hover:bg-[#00c2ff] hover:text-white transition-all shadow-xl hover:scale-105"
+                                >
+                                    <span>Iniciar Diagnóstico</span>
+                                    <ArrowRight size={20} />
+                                </button>
+                            </div>
+                        </div>
+                    ),
+                    deepDive: (
+                        <div className="deep-dive-content">
+                            <h3>Transição para Camada 2</h3>
+                            <p>Passe o controle para o cliente. Pergunte onde dói.</p>
+                        </div>
+                    )
+                },
+
+                // === CAMADA 2: DIAGNÓSTICO (Hub & Spoke) ===
+                {
+                    id: 'c2_hub',
+                    bg: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2000',
+                    section: 'Diagnóstico',
+                    title: 'Onde Dói?',
+                    maxBuilds: 1,
+                    content: (
+                        <div className="w-full max-w-7xl px-4 md:px-12 h-full flex flex-col justify-center">
+                            <h2 className="text-4xl font-light mb-12 text-center text-white">Onde está o <span className="font-bold text-[#00c2ff]">gargalo real</span>?</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-auto">
+                                {[
+                                    { id: 'c2_frag_A', icon: Layers, title: "Fragmentação", sub: "Muitos canais, sem jornada" },
+                                    { id: 'c2_vacuo_A', icon: MessageSquare, title: "Vácuo / Inércia", sub: "Cliente para de responder" },
+                                    { id: 'c2_voz_A', icon: PhoneOff, title: "Queda da Voz", sub: "Ninguém atende chamadas" },
+                                    { id: 'c2_auto_A', icon: Bot, title: "Automação Ruim", sub: "Bots que geram esforço" },
+                                    { id: 'c2_risco_A', icon: Unplug, title: "Risco & Queda", sub: "Indisponibilidade silenciosa" },
+                                ].map((card) => (
+                                    <div 
+                                        key={card.id}
+                                        onClick={() => navigateToSlideId(card.id)}
+                                        className="hub-card group"
+                                    >
+                                        <card.icon size={40} className="text-slate-400 group-hover:text-[#00c2ff] mb-4 transition-colors" />
+                                        <h3 className="text-xl font-bold mb-2 text-white group-hover:text-[#00c2ff] transition-colors">{card.title}</h3>
+                                        <p className="text-sm text-slate-400 group-hover:text-slate-200">{card.sub}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ),
+                    deepDive: (
+                        <div className="deep-dive-content">
+                            <h3>Menu de Diagnóstico</h3>
+                            <p>Pergunte ao cliente: <em>"Desses temas, qual tira seu sono hoje?"</em>. Clique no card escolhido. A seta "Próximo" neste slide leva direto para a Camada 3 (Solução).</p>
+                        </div>
+                    )
+                },
+
+                // --- BLOCO 2.1: Fragmentação ---
+                {
+                    id: 'c2_frag_A',
+                    bg: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2000',
+                    section: 'Diagnóstico',
+                    title: '2.1 Fragmentação',
+                    hideInMenu: true,
+                    maxBuilds: 2,
+                    content: (
+                        <div className="max-w-5xl px-8 text-center">
+                            <h1 className={`build text-5xl md:text-6xl font-light mb-12 text-white ${buildStep >= 1 ? 'show' : ''}`}>
+                                Ter muitos canais <br/><span className="font-bold text-red-500">não é Omnichannel.</span>
+                            </h1>
+                            <div className={`build flex justify-center gap-8 ${buildStep >= 2 ? 'show' : ''}`}>
+                                <div className="flex gap-4 p-8 bg-white/5 rounded-2xl border border-red-500/30">
+                                    <MessageSquare className="text-slate-400" />
+                                    <div className="w-[1px] h-6 bg-slate-600"></div>
+                                    <Users className="text-slate-400" />
+                                    <div className="w-[1px] h-6 bg-slate-600"></div>
+                                    <Layers className="text-slate-400" />
+                                </div>
+                            </div>
+                            <p className={`build mt-8 text-xl text-slate-300 ${buildStep >= 2 ? 'show' : ''}`}>Se o cliente repete informação, você tem silos, não jornada.</p>
+                        </div>
+                    ),
+                    deepDive: (
+                        <div className="deep-dive-content">
+                            <h3>A Ilusão do Omnichannel</h3>
+                            <p><strong>Tensão Challenger:</strong> "Se o seu cliente precisa repetir informações ou trocar de canal, você não tem omnichannel. Você tem fragmentação."</p>
+                        </div>
+                    )
+                },
+                {
+                    id: 'c2_frag_B',
+                    bg: null, // Escuro (corrigido)
+                    section: 'Diagnóstico',
+                    title: '2.1 Evidência',
+                    hideInMenu: true,
+                    maxBuilds: 2,
+                    content: (
+                        <div className="max-w-5xl px-8 w-full text-center">
+                            <h2 className={`build text-4xl font-bold mb-16 text-white ${buildStep >= 0 ? 'show' : ''}`}>Por que falha na prática?</h2>
+                            <div className="flex flex-col md:flex-row items-center justify-center gap-16">
+                                <div className={`build flex-1 ${buildStep >= 1 ? 'show' : ''}`}>
+                                    <div className="text-8xl font-bold text-red-500 mb-4">60%</div>
+                                    <p className="text-xl font-medium text-white">das iniciativas falham</p>
+                                    <p className="text-sm text-slate-400 mt-2">Fonte: Gartner</p>
+                                </div>
+                                <div className={`build flex-1 text-left ${buildStep >= 2 ? 'show' : ''}`}>
+                                    <ul className="space-y-4 text-lg font-medium text-slate-300">
+                                        <li className="flex gap-3"><X className="text-red-500" /> Dados fragmentados</li>
+                                        <li className="flex gap-3"><X className="text-red-500" /> Contexto quebrado</li>
+                                        <li className="flex gap-3"><X className="text-red-500" /> Esforço duplicado</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div className="mt-16">
+                                <button onClick={() => navigateToSlideId('c2_hub')} className="text-slate-400 hover:text-white flex items-center gap-2 mx-auto"><Undo2 size={16}/> Voltar ao Diagnóstico</button>
+                            </div>
+                        </div>
+                    ),
+                    deepDive: (
+                        <div className="deep-dive-content">
+                            <h3>Evidência Gartner</h3>
+                            <p>Mais de 60% das iniciativas omnichannel falham em reduzir o esforço do cliente porque não existe continuidade real.</p>
+                        </div>
+                    )
+                },
+                {
+                    id: 'c2_frag_C',
+                    bg: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=2000',
+                    section: 'Diagnóstico',
+                    title: '2.1 Consequência',
+                    hideInMenu: true,
+                    maxBuilds: 2,
+                    content: (
+                        <div className="max-w-5xl px-8 text-center">
+                            <h2 className={`build text-4xl font-light mb-12 text-white ${buildStep >= 0 ? 'show' : ''}`}>O Custo Real</h2>
+                            <div className={`build grid grid-cols-3 gap-8 mb-16 ${buildStep >= 1 ? 'show' : ''}`}>
+                                <div className="p-6 border border-white/20 rounded-xl bg-white/5">
+                                    <h3 className="text-2xl font-bold text-red-400 mb-2">CES</h3>
+                                    <p className="text-sm opacity-70 text-slate-300">Sobe drasticamente</p>
+                                </div>
+                                <div className="p-6 border border-white/20 rounded-xl bg-white/5">
+                                    <h3 className="text-2xl font-bold text-red-400 mb-2">NPS</h3>
+                                    <p className="text-sm opacity-70 text-slate-300">Impacto direto</p>
+                                </div>
+                                <div className="p-6 border border-white/20 rounded-xl bg-white/5">
+                                    <h3 className="text-2xl font-bold text-red-400 mb-2">Churn</h3>
+                                    <p className="text-sm opacity-70 text-slate-300">Risco oculto</p>
+                                </div>
+                            </div>
+                            <div className={`build ${buildStep >= 2 ? 'show' : ''}`}>
+                                <p className="text-xl mb-8 text-white">Como empresas líderes resolvem isso?</p>
+                                <button onClick={() => navigateToSlideId('c3_intro')} className="px-8 py-3 bg-[#00c2ff] text-navy font-bold rounded-full hover:bg-white transition-colors">Ver Solução</button>
+                            </div>
+                             <div className="mt-8">
+                                <button onClick={() => navigateToSlideId('c2_hub')} className="text-white/40 hover:text-white flex items-center gap-2 mx-auto"><Undo2 size={16}/> Voltar ao Diagnóstico</button>
+                            </div>
+                        </div>
+                    ),
+                    deepDive: (
+                        <div className="deep-dive-content">
+                            <h3>Impacto Financeiro</h3>
+                            <p>A fragmentação aumenta o Custo de Servir e destrói o Lifetime Value (LTV).</p>
+                        </div>
+                    )
+                },
+
+                // --- BLOCO 2.2: Vácuo (Custo Invisível) ---
+                {
+                    id: 'c2_vacuo_A',
+                    bg: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2000',
+                    section: 'Diagnóstico',
+                    title: '2.2 Vácuo',
+                    hideInMenu: true,
+                    maxBuilds: 2,
+                    content: (
+                        <div className="max-w-5xl px-8 text-center">
+                            <h1 className={`build text-4xl md:text-6xl font-light mb-12 text-white ${buildStep >= 1 ? 'show' : ''}`}>
+                                O cliente não responde porque <br/><span className="font-bold text-[#00c2ff]">exige esforço demais.</span>
+                            </h1>
+                            <div className={`build p-8 bg-white/5 rounded-2xl border border-white/10 max-w-2xl mx-auto ${buildStep >= 2 ? 'show' : ''}`}>
+                                <p className="text-xl italic text-slate-200">"Ping-pong infinito de mensagens cria abandono silencioso."</p>
+                            </div>
+                        </div>
+                    ),
+                    deepDive: (
+                        <div className="deep-dive-content">
+                            <h3>Custo do Esforço</h3>
+                            <p><strong>Tensão Challenger:</strong> "O problema não é que o cliente não responde. O problema é que responder dá trabalho."</p>
+                        </div>
+                    )
+                },
+                {
+                    id: 'c2_vacuo_B',
+                    bg: null,
+                    section: 'Diagnóstico',
+                    title: '2.2 Evidência',
+                    hideInMenu: true,
+                    maxBuilds: 2,
+                    content: (
+                        <div className="max-w-5xl px-8 w-full text-center">
+                            <h2 className={`build text-4xl font-bold mb-16 text-white ${buildStep >= 0 ? 'show' : ''}`}>Harvard Business Review</h2>
+                            <div className={`build mb-12 ${buildStep >= 1 ? 'show' : ''}`}>
+                                <div className="text-9xl font-bold text-white opacity-10 absolute left-0 right-0 mx-auto -mt-12">81%</div>
+                                <p className="text-3xl font-medium relative z-10 max-w-3xl mx-auto text-white">
+                                    Clientes com alto esforço têm <span className="text-red-500 font-bold">81% de chance</span> de falar mal da empresa.
+                                </p>
+                            </div>
+                            <div className="mt-16">
+                                <button onClick={() => navigateToSlideId('c2_hub')} className="text-slate-400 hover:text-white flex items-center gap-2 mx-auto"><Undo2 size={16}/> Voltar ao Diagnóstico</button>
+                            </div>
+                        </div>
+                    ),
+                    deepDive: (
+                        <div className="deep-dive-content">
+                            <h3>Dados HBR</h3>
+                            <p>Reduzir esforço explica lealdade melhor do que "encantar". Clientes de alto esforço espalham boca a boca negativo.</p>
+                        </div>
+                    )
+                },
+                {
+                    id: 'c2_vacuo_C',
+                    bg: 'https://images.unsplash.com/photo-1512428559087-560fa5ce7d5b?q=80&w=2000',
+                    section: 'Diagnóstico',
+                    title: '2.2 Consequência',
+                    hideInMenu: true,
+                    maxBuilds: 1,
+                    content: (
+                        <div className="max-w-5xl px-8 text-center">
+                            <h2 className={`build text-4xl font-light mb-12 text-white ${buildStep >= 0 ? 'show' : ''}`}>O Resultado da Inércia</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left mb-12">
+                                <div className="p-6 bg-white/5 rounded-xl">
+                                    <h4 className="font-bold text-[#00c2ff] mb-2">Conversão Menor</h4>
+                                    <p className="text-sm opacity-70 text-slate-300">Vendas esfriam no chat.</p>
+                                </div>
+                                <div className="p-6 bg-white/5 rounded-xl">
+                                    <h4 className="font-bold text-[#00c2ff] mb-2">Ciclo Longo</h4>
+                                    <p className="text-sm opacity-70 text-slate-300">Dias para resolver o simples.</p>
+                                </div>
+                                <div className="p-6 bg-white/5 rounded-xl">
+                                    <h4 className="font-bold text-[#00c2ff] mb-2">Custo Oculto</h4>
+                                    <p className="text-sm opacity-70 text-slate-300">Equipe presa em follow-up.</p>
+                                </div>
+                            </div>
+                            <button onClick={() => navigateToSlideId('c3_intro')} className="px-8 py-3 bg-[#00c2ff] text-navy font-bold rounded-full hover:bg-white transition-colors">Ver Solução</button>
+                             <div className="mt-8">
+                                <button onClick={() => navigateToSlideId('c2_hub')} className="text-white/40 hover:text-white flex items-center gap-2 mx-auto"><Undo2 size={16}/> Voltar ao Diagnóstico</button>
+                            </div>
+                        </div>
+                    ),
+                    deepDive: (
+                        <div className="deep-dive-content">
+                            <h3>Impacto da Inércia</h3>
+                            <p>A jornada morre por inércia. Adiar não tem custo para o cliente, mas tem custo alto para a empresa.</p>
+                        </div>
+                    )
+                },
+
+                // --- BLOCO 2.3: Voz (Queda Tradicional) ---
+                {
+                    id: 'c2_voz_A',
+                    bg: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2000',
+                    section: 'Diagnóstico',
+                    title: '2.3 Voz',
+                    hideInMenu: true,
+                    maxBuilds: 2,
+                    content: (
+                        <div className="max-w-5xl px-8 text-center">
+                             <PhoneOff size={64} className={`build mx-auto mb-8 text-red-500 ${buildStep >= 0 ? 'show' : ''}`} />
+                            <h1 className={`build text-4xl md:text-6xl font-light mb-8 text-white ${buildStep >= 1 ? 'show' : ''}`}>
+                                As pessoas não odeiam voz. <br/><span className="font-bold">Elas odeiam risco.</span>
+                            </h1>
+                            <p className={`build text-xl text-slate-300 ${buildStep >= 2 ? 'show' : ''}`}>Spam. Golpes. Chamadas frias.</p>
+                        </div>
+                    ),
+                    deepDive: (
+                        <div className="deep-dive-content">
+                            <h3>Rejeição ao Telefone</h3>
+                            <p><strong>Insight:</strong> "A voz não morreu. O telefone sem contexto morreu." A rejeição não é à voz, é ao canal sem identidade.</p>
+                        </div>
+                    )
+                },
+                {
+                    id: 'c2_voz_B',
+                    bg: null,
+                    section: 'Diagnóstico',
+                    title: '2.3 Evidência',
+                    hideInMenu: true,
+                    maxBuilds: 2,
+                    content: (
+                        <div className="max-w-5xl px-8 w-full text-center">
+                            <h2 className={`build text-4xl font-bold mb-12 text-white ${buildStep >= 0 ? 'show' : ''}`}>O Cenário Brasil</h2>
+                            <div className="flex flex-col md:flex-row items-center justify-center gap-12">
+                                <div className={`build p-8 bg-white/5 border border-white/10 rounded-2xl w-full max-w-sm ${buildStep >= 1 ? 'show' : ''}`}>
+                                    <h3 className="text-xl font-bold mb-4 text-[#00c2ff]">Truecaller</h3>
+                                    <p className="text-slate-200">Brasil lidera rankings globais de chamadas de spam.</p>
+                                </div>
+                                <div className={`build p-8 bg-white/5 border border-white/10 rounded-2xl w-full max-w-sm ${buildStep >= 2 ? 'show' : ''}`}>
+                                    <h3 className="text-xl font-bold mb-4 text-[#00c2ff]">Contact Rate</h3>
+                                    <p className="text-red-500 font-bold text-3xl">Despencando</p>
+                                    <p className="text-sm text-slate-300">em campanhas ativas</p>
+                                </div>
+                            </div>
+                            <div className="mt-16">
+                                <button onClick={() => navigateToSlideId('c2_hub')} className="text-slate-400 hover:text-white flex items-center gap-2 mx-auto"><Undo2 size={16}/> Voltar ao Diagnóstico</button>
+                            </div>
+                        </div>
+                    ),
+                    deepDive: (
+                        <div className="deep-dive-content">
+                            <h3>Dados Reais</h3>
+                            <p>O contact rate está em queda livre devido à desconfiança. Números desconhecidos são ignorados automaticamente.</p>
+                        </div>
+                    )
+                },
+                {
+                    id: 'c2_voz_C',
+                    bg: 'https://images.unsplash.com/photo-1573497620053-ea5300f94f21?q=80&w=2000',
+                    section: 'Diagnóstico',
+                    title: '2.3 Consequência',
+                    hideInMenu: true,
+                    maxBuilds: 1,
+                    content: (
+                        <div className="max-w-5xl px-8 text-center">
+                            <h2 className={`build text-4xl font-light mb-12 text-white ${buildStep >= 0 ? 'show' : ''}`}>Eficiência Perdida</h2>
+                            <div className="text-xl leading-relaxed max-w-3xl mx-auto mb-12 text-slate-200">
+                                <p>Sua equipe liga. Ninguém atende.</p>
+                                <p>Sua equipe tenta digital. O cliente ignora.</p>
+                                <p className="text-red-400 font-bold mt-4">Você perdeu a conexão.</p>
+                            </div>
+                            <button onClick={() => navigateToSlideId('c3_intro')} className="px-8 py-3 bg-[#00c2ff] text-navy font-bold rounded-full hover:bg-white transition-colors">Ver Solução</button>
+                             <div className="mt-8">
+                                <button onClick={() => navigateToSlideId('c2_hub')} className="text-white/40 hover:text-white flex items-center gap-2 mx-auto"><Undo2 size={16}/> Voltar ao Diagnóstico</button>
+                            </div>
+                        </div>
+                    ),
+                    deepDive: (
+                        <div className="deep-dive-content">
+                            <h3>Impacto</h3>
+                            <p>Campanhas ativas perdem eficiência e o custo por contato (CPC) aumenta drasticamente.</p>
+                        </div>
+                    )
+                },
+
+                // --- BLOCO 2.4: Automação ---
+                {
+                    id: 'c2_auto_A',
+                    bg: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=2000',
+                    section: 'Diagnóstico',
+                    title: '2.4 Automação',
+                    hideInMenu: true,
+                    maxBuilds: 2,
+                    content: (
+                        <div className="max-w-5xl px-8 text-center">
+                            <Bot size={64} className={`build mx-auto mb-8 text-[#00c2ff] ${buildStep >= 0 ? 'show' : ''}`} />
+                            <h1 className={`build text-4xl md:text-6xl font-light mb-8 text-white ${buildStep >= 1 ? 'show' : ''}`}>
+                                Automatizar tudo não é eficiência. <br/><span className="font-bold">É terceirizar esforço.</span>
+                            </h1>
+                            <p className={`build text-xl text-slate-300 ${buildStep >= 2 ? 'show' : ''}`}>Para o cliente, seu bot é apenas mais uma barreira.</p>
+                        </div>
+                    ),
+                    deepDive: (
+                        <div className="deep-dive-content">
+                            <h3>Automação Ruim</h3>
+                            <p><strong>Insight:</strong> "IA não substitui a voz. IA decide quando a voz deve entrar." Automatizar tudo joga o trabalho para o cliente.</p>
+                        </div>
+                    )
+                },
+                {
+                    id: 'c2_auto_B',
+                    bg: null,
+                    section: 'Diagnóstico',
+                    title: '2.4 Evidência',
+                    hideInMenu: true,
+                    maxBuilds: 2,
+                    content: (
+                        <div className="max-w-5xl px-8 w-full text-center">
+                            <h2 className={`build text-4xl font-bold mb-16 text-white ${buildStep >= 0 ? 'show' : ''}`}>A Realidade do Self-Service</h2>
+                            <div className={`build mb-12 ${buildStep >= 1 ? 'show' : ''}`}>
+                                <div className="text-9xl font-bold text-red-500 mb-4">14%</div>
+                                <p className="text-2xl font-medium text-white">apenas são totalmente resolvidos</p>
+                                <p className="text-sm text-slate-400 mt-2">em self-service puro (Gartner)</p>
+                            </div>
+                            <p className={`build text-lg text-slate-300 ${buildStep >= 2 ? 'show' : ''}`}>O resto cai para humano, repete tudo e gera frustração.</p>
+                            <div className="mt-16">
+                                <button onClick={() => navigateToSlideId('c2_hub')} className="text-slate-400 hover:text-white flex items-center gap-2 mx-auto"><Undo2 size={16}/> Voltar ao Diagnóstico</button>
+                            </div>
+                        </div>
+                    ),
+                    deepDive: (
+                        <div className="deep-dive-content">
+                            <h3>Dados Gartner</h3>
+                            <p>Apenas 14% das demandas se resolvem sozinhas. O transbordo mal feito (digital -> humano) é onde a experiência morre.</p>
+                        </div>
+                    )
+                },
+                {
+                    id: 'c2_auto_C',
+                    bg: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2000',
+                    section: 'Diagnóstico',
+                    title: '2.4 Consequência',
+                    hideInMenu: true,
+                    maxBuilds: 1,
+                    content: (
+                        <div className="max-w-5xl px-8 text-center">
+                            <h2 className={`build text-4xl font-light mb-12 text-white ${buildStep >= 0 ? 'show' : ''}`}>Custo Total Aumenta</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left mb-12">
+                                <div className="p-6 border border-white/20 rounded-xl">
+                                    <h4 className="font-bold text-[#00c2ff]">Retrabalho</h4>
+                                    <p className="text-sm opacity-70 text-slate-300">O humano refaz o que o bot errou.</p>
+                                </div>
+                                <div className="p-6 border border-white/20 rounded-xl">
+                                    <h4 className="font-bold text-[#00c2ff]">NPS</h4>
+                                    <p className="text-sm opacity-70 text-slate-300">Cai pela frustração.</p>
+                                </div>
+                                <div className="p-6 border border-white/20 rounded-xl">
+                                    <h4 className="font-bold text-[#00c2ff]">Oportunidade</h4>
+                                    <p className="text-sm opacity-70 text-slate-300">Perdida no fluxo rígido.</p>
+                                </div>
+                            </div>
+                            <button onClick={() => navigateToSlideId('c3_intro')} className="px-8 py-3 bg-[#00c2ff] text-navy font-bold rounded-full hover:bg-white transition-colors">Ver Solução</button>
+                             <div className="mt-8">
+                                <button onClick={() => navigateToSlideId('c2_hub')} className="text-white/40 hover:text-white flex items-center gap-2 mx-auto"><Undo2 size={16}/> Voltar ao Diagnóstico</button>
+                            </div>
+                        </div>
+                    ),
+                    deepDive: (
+                        <div className="deep-dive-content">
+                            <h3>Impacto</h3>
+                            <p>Automação burra aumenta CES, derruba NPS e aumenta o custo total da operação.</p>
+                        </div>
+                    )
+                },
+
+                 // --- BLOCO 2.5: Risco / Continuidade ---
+                 {
+                    id: 'c2_risco_A',
+                    bg: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2000',
+                    section: 'Diagnóstico',
+                    title: '2.5 Risco',
+                    hideInMenu: true,
+                    maxBuilds: 2,
+                    content: (
+                        <div className="max-w-5xl px-8 text-center">
+                            <FileWarning size={64} className={`build mx-auto mb-8 text-yellow-500 ${buildStep >= 0 ? 'show' : ''}`} />
+                            <h1 className={`build text-4xl md:text-6xl font-light mb-8 text-white ${buildStep >= 1 ? 'show' : ''}`}>
+                                Indisponibilidade não é só <br/>ficar fora do ar.
+                            </h1>
+                            <p className={`build text-xl text-slate-300 ${buildStep >= 2 ? 'show' : ''}`}>É não conseguir responder quando importa.</p>
+                        </div>
+                    ),
+                    deepDive: (
+                        <div className="deep-dive-content">
+                            <h3>Risco Operacional</h3>
+                            <p><strong>Tensão:</strong> "Continuidade deixou de ser TI. Virou experiência." A maioria das falhas são degradações silenciosas (fila não distribui, integração cai).</p>
+                        </div>
+                    )
+                },
+                {
+                    id: 'c2_risco_B',
+                    bg: null,
+                    section: 'Diagnóstico',
+                    title: '2.5 Evidência',
+                    hideInMenu: true,
+                    maxBuilds: 2,
+                    content: (
+                        <div className="max-w-5xl px-8 w-full text-center">
+                            <h2 className={`build text-4xl font-bold mb-16 text-white ${buildStep >= 0 ? 'show' : ''}`}>O Risco Silencioso</h2>
+                            <div className={`build grid grid-cols-2 gap-8 mb-12 ${buildStep >= 1 ? 'show' : ''}`}>
+                                <div className="p-8 bg-white/5 border border-white/10 rounded-xl">
+                                    <h3 className="font-bold text-lg mb-2 text-[#00c2ff]">Bancos & Saúde</h3>
+                                    <p className="text-sm text-slate-300">Onde a confiança é binária: funciona ou não funciona.</p>
+                                </div>
+                                <div className="p-8 bg-white/5 border border-white/10 rounded-xl">
+                                    <h3 className="font-bold text-lg mb-2 text-[#00c2ff]">Black Friday</h3>
+                                    <p className="text-sm text-slate-300">Onde cada segundo fora custa milhões.</p>
+                                </div>
+                            </div>
+                            <div className="mt-8">
+                                <button onClick={() => navigateToSlideId('c2_hub')} className="text-slate-400 hover:text-white flex items-center gap-2 mx-auto"><Undo2 size={16}/> Voltar ao Diagnóstico</button>
+                            </div>
+                        </div>
+                    ),
+                    deepDive: (
+                        <div className="deep-dive-content">
+                            <h3>Setores Críticos</h3>
+                            <p>Em setores regulados ou de alto volume, a indisponibilidade gera perda imediata de confiança, churn e risco reputacional.</p>
+                        </div>
+                    )
+                },
+                {
+                    id: 'c2_risco_C',
+                    bg: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2000',
+                    section: 'Diagnóstico',
+                    title: '2.5 Consequência',
+                    hideInMenu: true,
+                    maxBuilds: 1,
+                    content: (
+                        <div className="max-w-5xl px-8 text-center">
+                            <h2 className={`build text-4xl font-light mb-12 text-white ${buildStep >= 0 ? 'show' : ''}`}>O Preço da Falha</h2>
+                            <p className="text-2xl mb-12 text-slate-200">Para o cliente, pouco importa o motivo técnico. <br/>Ele só sabe que ninguém respondeu.</p>
+                            <button onClick={() => navigateToSlideId('c3_intro')} className="px-8 py-3 bg-[#00c2ff] text-navy font-bold rounded-full hover:bg-white transition-colors">Ver Solução</button>
+                             <div className="mt-8">
+                                <button onClick={() => navigateToSlideId('c2_hub')} className="text-white/40 hover:text-white flex items-center gap-2 mx-auto"><Undo2 size={16}/> Voltar ao Diagnóstico</button>
+                            </div>
+                        </div>
+                    ),
+                    deepDive: (
+                        <div className="deep-dive-content">
+                            <h3>Impacto</h3>
+                            <p>Indisponibilidade gera churn silencioso. O cliente simplesmente muda para o concorrente que atende.</p>
+                        </div>
+                    )
+                },
+
+                // === CAMADA 3: PLACEHOLDER ===
+                // === CAMADA 3: SOLUÇÃO (ECOSSISTEMA NUVETO) ===
+// === CAMADA 3: SOLUÇÃO (ECOSSISTEMA NUVETO) ===
+// === CAMADA 3: SOLUÇÃO (ECOSSISTEMA NUVETO) ===
+{
+    id: 'c3_intro',
+    bg: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=2000',
+    section: 'Solução',
+    title: 'Ecossistema de Soluções',
+    maxBuilds: 0,
+    content: (
+        <div className="w-full h-full flex flex-col justify-center px-6 md:px-12 lg:px-20">
+            {/* Cabeçalho */}
+            <div className="mb-8 text-center md:text-left">
+                <p className="text-[#00c2ff] text-xs md:text-sm font-bold uppercase tracking-[0.35em] mb-3">
+                    Camada 3 · Solução
+                </p>
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
+                    Ecossistema de Soluções Nuveto
+                </h1>
+                <p className="mt-3 text-xs md:text-sm text-blue-100/80 max-w-xl">
+                    Escolha por onde guiar a conversa: jornada do cliente ou solução tecnológica.
+                </p>
+            </div>
+
+            {/* Grupos de botões */}
+            <div className="flex flex-col gap-8">
+                {/* Grupo 1 – Jornadas Inteligentes */}
+                <div>
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2.5 rounded-xl bg-emerald-500/20">
+                            <Users className="text-emerald-300" size={22} />
+                        </div>
+                        <div>
+                            <p className="text-[10px] uppercase tracking-[0.25em] text-emerald-300 font-semibold">
+                                Jornadas Inteligentes
+                            </p>
+                            <h2 className="text-base md:text-lg font-semibold text-white">
+                                Como o cliente vive a experiência na prática
+                            </h2>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {/* Botão 1 – Jornada do Paciente (Saúde) */}
+                        <button
+                            type="button"
+                            onClick={() => { window.location.href = 'Jornada Eva - Saúde.html'; }}
+                            className="glass-card bg-white/5 border border-white/15 hover:border-[#00c2ff]/70 hover:-translate-y-1 transition-all flex flex-col items-start text-left cursor-pointer"
+                        >
+                            <span className="text-[11px] uppercase tracking-[0.2em] text-emerald-200 font-semibold mb-1">
+                                Jornada do Paciente
+                            </span>
+                            <h3 className="text-sm md:text-base font-semibold text-white mb-2">
+                                Saúde · Clínicas, hospitais e labs
+                            </h3>
+                            <p className="text-xs text-blue-100/80">
+                                Do primeiro contato até o pós-atendimento.
+                            </p>
+                        </button>
+
+                        {/* Botão 2 – Jornada do Cliente (Financeiro) */}
+                        <button
+                            type="button"
+                            onClick={() => { window.location.href = 'Luciana - Jornada Financeirotxt.html'; }}
+                            className="glass-card bg-white/5 border border-white/15 hover:border-[#00c2ff]/70 hover:-translate-y-1 transition-all flex flex-col items-start text-left cursor-pointer"
+                        >
+                            <span className="text-[11px] uppercase tracking-[0.2em] text-sky-200 font-semibold mb-1">
+                                Jornada do Cliente
+                            </span>
+                            <h3 className="text-sm md:text-base font-semibold text-white mb-2">
+                                Financeiro · Bancos, fintechs, crédito
+                            </h3>
+                            <p className="text-xs text-blue-100/80">
+                                Captação, qualificação, aprovação e relacionamento.
+                            </p>
+                        </button>
+                    </div>
+                </div>
+
+                {/* Grupo 2 – Soluções Tecnológicas */}
+                <div>
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2.5 rounded-xl bg-blue-500/25">
+                            <Layers className="text-blue-200" size={22} />
+                        </div>
+                        <div>
+                            <p className="text-[10px] uppercase tracking-[0.25em] text-blue-200 font-semibold">
+                                Soluções Tecnológicas
+                            </p>
+                            <h2 className="text-base md:text-lg font-semibold text-white">
+                                Os blocos que fazem as jornadas acontecerem
+                            </h2>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {/* Botão 3 – Conecta+ */}
+                        <button
+                            type="button"
+                            onClick={() => { window.location.href = 'Conecta+ Arquitetura.html'; }}
+                            className="glass-card bg-white/5 border border-white/15 hover:border-[#00c2ff]/70 hover:-translate-y-1 transition-all flex flex-col items-start text-left cursor-pointer"
+                        >
+                            <div className="flex items-center gap-2 mb-2">
+                                <Zap className="text-yellow-300" size={18} />
+                                <h3 className="text-sm md:text-base font-semibold text-white">
+                                    Conecta+
+                                </h3>
+                            </div>
+                            <p className="text-xs text-blue-100/80">
+                                Canais, telefonia, roteamento e regras de negócio.
+                            </p>
+                        </button>
+
+                        {/* Botão 4 – Dialogi (vídeo features) */}
+                        <button
+                            type="button"
+                            onClick={() => { window.location.href = 'Conteúdo Comercial - Features.mp4'; }}
+                            className="glass-card bg-white/5 border border-white/15 hover:border-[#00c2ff]/70 hover:-translate-y-1 transition-all flex flex-col items-start text-left cursor-pointer"
+                        >
+                            <div className="flex items-center gap-2 mb-2">
+                                <Bot className="text-emerald-300" size={18} />
+                                <h3 className="text-sm md:text-base font-semibold text-white">
+                                    Dialogi
+                                </h3>
+                            </div>
+                            <p className="text-xs text-blue-100/80">
+                                Vídeo comercial de features do Dialogi.
+                            </p>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Rodapé */}
+            <div className="mt-6 flex flex-wrap items-center gap-3 text-[11px] text-blue-100/70">
+                <button
+                    type="button"
+                    onClick={() => navigateToSlideId('c2_hub')}
+                    className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/25 text-blue-100 hover:bg-white/20 hover:border-[#00c2ff]/70 transition-all"
+                >
+                    <Undo2 size={14} />
+                    Voltar ao Diagnóstico
+                </button>
+                <span>
+                    Os 4 botões já levam diretamente para as páginas prontas que você validou.
+                </span>
+            </div>
+        </div>
+    ),
+    deepDive: (
+        <div className="deep-dive-content">
+            <h3>Nota técnica</h3>
+            <p>
+                Cada botão usa <code>window.location.href</code> para navegar na mesma aba
+                para os arquivos locais correspondentes (sem iframe, sem nova aba).
+            </p>
+            <ul>
+                <li>Jornada do Paciente → Jornada Eva - Saúde.html</li>
+                <li>Jornada do Cliente → Luciana - Jornada Financeirotxt.html</li>
+                <li>Conecta+ → Conecta+ Arquitetura.html</li>
+                <li>Dialogi → Conteúdo Comercial - Features.mp4</li>
+            </ul>
+        </div>
+    )
+},
+,
+,
+
+            ];
+
+            const handleNext = useCallback(() => {
+                const currentId = slides[currentSlide].id;
+                
+                // Lógica Especial: Se estiver no Hub, vai para Camada 3
+                if (currentId === 'c2_hub') {
+                    navigateToSlideId('c3_intro');
+                    return;
+                }
+
+                if (buildStep < (slides[currentSlide].maxBuilds || 0)) {
+                    setBuildStep(prev => prev + 1);
+                } else if (currentSlide < slides.length - 1) {
+                    setCurrentSlide(prev => prev + 1);
+                    setBuildStep(0);
+                }
+            }, [buildStep, currentSlide, slides]);
+
+            const handlePrev = useCallback(() => {
+                if (buildStep > 0) {
+                    setBuildStep(prev => prev - 1);
+                } else if (currentSlide > 0) {
+                    setCurrentSlide(prev => prev - 1);
+                    setBuildStep(slides[currentSlide - 1].maxBuilds || 0);
+                }
+            }, [buildStep, currentSlide, slides]);
+
+            useEffect(() => {
+                const onKeyDown = (e) => {
+                    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') handleNext();
+                    if (e.key === 'ArrowLeft' || e.key === 'Backspace' || e.key === 'PageUp') handlePrev();
+                    if (e.key === 'Escape') { setMenuOpen(false); setDeepDiveOpen(false); }
+                };
+                window.addEventListener('keydown', onKeyDown);
+                return () => window.removeEventListener('keydown', onKeyDown);
+            }, [handleNext, handlePrev]);
+
+            useEffect(() => {
+                if (buildStep === 0) {
+                    const timer = setTimeout(() => setBuildStep(1), 400);
+                    return () => clearTimeout(timer);
+                }
+            }, [currentSlide]);
+
+            const activeSlide = slides[currentSlide];
+            const isLightBackground = activeSlide.isLight;
+            const activeLogo = isLightBackground ? LOGO_NUVETO_PRETO : LOGO_NUVETO_BRANCO;
+
+            const uniqueSections = [];
+            const seenSections = new Set();
+            
+            // Filtro para mostrar apenas os itens principais no menu
+            slides.forEach((slide, index) => {
+                if (!slide.hideInMenu && !seenSections.has(slide.section)) {
+                    seenSections.add(slide.section);
+                    uniqueSections.push({ name: slide.section, startIndex: index });
+                }
+            });
+
+            return (
+                <div className={`presentation-wrapper selection:bg-blue-400 ${isLightBackground ? 'light-theme' : ''}`}>
+                    {/* Sidebar */}
+                    {menuOpen && <div className="sidebar-overlay open" onClick={() => setMenuOpen(false)} />}
+                    <div className={`sidebar ${menuOpen ? 'open' : ''}`}>
+                        <div className="flex items-center justify-between mb-8">
+                            <span className="text-white font-bold tracking-widest uppercase text-xs">Navegação</span>
+                            <button onClick={() => setMenuOpen(false)} className="text-white/50 hover:text-white transition-colors">
+                                <X size={24} />
+                            </button>
+                        </div>
+                        <div className="flex-1 overflow-y-auto pr-2">
+                            {uniqueSections.map((section, idx) => (
+                                <div key={idx}>
+                                    <div className="section-label">{section.name}</div>
+                                    {slides
+                                        .map((s, i) => ({ ...s, index: i }))
+                                        .filter(s => s.section === section.name && !s.hideInMenu)
+                                        .map(slide => (
+                                            <div 
+                                                key={slide.id}
+                                                onClick={() => navigateToSlideId(slide.id)}
+                                                className={`nav-item ${currentSlide === slide.index ? 'active' : ''}`}
+                                            >
+                                                <div className={`w-2 h-2 rounded-full ${currentSlide === slide.index ? 'bg-blue-400' : 'bg-white/20'}`}></div>
+                                                <span className="text-sm font-medium">{slide.title}</span>
+                                            </div>
+                                        ))
+                                    }
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Deep Dive Panel */}
+                    {deepDiveOpen && <div className="sidebar-overlay open" onClick={() => setDeepDiveOpen(false)} />}
+                    <div className={`deep-dive-panel ${deepDiveOpen ? 'open' : ''}`}>
+                        <div className="flex items-center justify-between mb-6 border-b border-white/10 pb-4">
+                            <div className="flex items-center gap-2 text-[#00c2ff]">
+                                <BookOpen size={20} />
+                                <span className="font-bold uppercase text-xs tracking-widest">Argumentação</span>
+                            </div>
+                            <button onClick={() => setDeepDiveOpen(false)} className="text-white/50 hover:text-white transition-colors">
+                                <X size={24} />
+                            </button>
+                        </div>
+                        <div>{activeSlide.deepDive}</div>
+                    </div>
+
+                    {/* Header */}
+                    <div className="fixed top-0 w-full p-4 md:p-8 flex justify-between items-center z-[100] transition-all duration-700">
+                        <div className="flex items-center gap-4">
+                            <button onClick={() => setMenuOpen(true)} className="control-btn" title="Menu">
+                                <Menu size={20} />
+                            </button>
+                            {activeLogo ? (
+                                <img src={activeLogo} alt="Logo" className="h-8 ml-4 w-auto object-contain" />
+                            ) : (
+                                <div className="font-bold text-2xl tracking-tighter transition-colors duration-700 leading-none ml-4 hidden md:block">
+                                    NUVETO
+                                </div>
+                            )}
+                        </div>
+                        <button 
+                            onClick={() => setDeepDiveOpen(!deepDiveOpen)}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-md transition-all border ${isLightBackground ? 'bg-navy/5 border-navy/10 text-navy hover:bg-navy hover:text-white' : 'bg-white/10 border-white/20 text-white hover:bg-white hover:text-navy'}`}
+                        >
+                            <Info size={16} />
+                            <span className="text-xs font-bold tracking-widest uppercase">Aprofundar</span>
+                        </button>
+                    </div>
+
+                    {/* Slides */}
+                    {slides.map((slide, index) => (
+                        <div key={slide.id} className={`slide ${index === currentSlide ? 'active' : ''}`}>
+                            {slide.bg && (
+                                <div className="slide-bg" style={{ backgroundImage: `url(${slide.bg})` }} />
+                            )}
+                            {slide.content}
+                        </div>
+                    ))}
+
+                    {/* Controls */}
+                    <div className="fixed bottom-8 right-8 md:bottom-12 md:right-12 flex items-center gap-6 z-[200]">
+                        <button 
+                            onClick={handlePrev} 
+                            disabled={currentSlide === 0 && buildStep <= 0}
+                            className="control-btn"
+                            title="Anterior"
+                        >
+                            <ChevronLeft size={24} />
+                        </button>
+                        <button 
+                            onClick={handleNext} 
+                            disabled={currentSlide === slides.length - 1 && buildStep >= (slides[currentSlide].maxBuilds || 0)}
+                            className="control-btn"
+                            title="Próximo"
+                        >
+                            <ChevronRight size={24} />
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
